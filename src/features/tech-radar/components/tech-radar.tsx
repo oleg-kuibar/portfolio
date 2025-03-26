@@ -59,7 +59,6 @@ export function TechRadar() {
     const maxRadius = (size / 2) * 0.85
 
     drawRadar({
-      canvas,
       ctx,
       size,
       centerX,

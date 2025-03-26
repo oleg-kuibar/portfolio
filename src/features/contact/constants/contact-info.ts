@@ -4,8 +4,8 @@ export const CONTACT_INFO: ContactInfo[] = [
   {
     icon: "mail",
     title: "Email",
-    value: "kuibar.oleg@gmail.com",
-    link: "mailto:kuibar.oleg@gmail.com",
+    value: "contact@olegkuibar.dev",
+    link: "mailto:contact@olegkuibar.dev",
   },
   {
     icon: "linkedin",
