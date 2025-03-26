@@ -10,6 +10,7 @@ import { useTheme } from "@/lib/providers/theme-provider"
 import { cn } from "@/utils/cn"
 import { FaLinkedin } from "react-icons/fa"
 import { SiGithub } from "react-icons/si"
+import { ArrowDownIcon } from "lucide-react"
 import { containerVariants, itemVariants } from "../animations"
 
 interface HeroProps {
@@ -35,6 +36,13 @@ export function Hero({
   const isInView = useInView(ref, { once: true, amount: 0.3 })
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
+
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById("about")
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: "smooth" })
+    }
+  }
 
   return (
     <section 
@@ -137,6 +145,26 @@ export function Hero({
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Scroll Down Button */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : -20 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <button
+          onClick={scrollToAbout}
+          className={cn(
+            "flex flex-col items-center transition-colors cursor-pointer",
+            isDark ? "text-foreground/40 hover:text-primary/90" : "text-foreground/50 hover:text-primary"
+          )}
+          aria-label="Scroll to About section"
+        >
+          <span className="text-sm mb-2">Scroll Down</span>
+          <ArrowDownIcon className="h-5 w-5 animate-bounce" aria-hidden="true" />
+        </button>
+      </motion.div>
     </section>
   )
 }
