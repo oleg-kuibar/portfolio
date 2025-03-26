@@ -35,6 +35,12 @@ export function TechRadar() {
       description: "Primary UI library for building component-based interfaces",
     },
     {
+      name: "Angular",
+      category: "frontend",
+      level: "core",
+      description: "Popular JavaScript framework for building dynamic web applications",
+    },
+    {
       name: "TypeScript",
       category: "frontend",
       level: "core",
@@ -53,10 +59,22 @@ export function TechRadar() {
       description: "Utility-first CSS framework for rapid UI development",
     },
     {
-      name: "Redux",
+      name: "Zustand",
+      category: "frontend",
+      level: "core",
+      description: "State management library for React",
+    },
+    {
+      name: "Zod",
+      category: "frontend",
+      level: "core",
+      description: "Schema declaration and validation library for TypeScript",
+    },
+    {
+      name: "CodeGen",
       category: "frontend",
       level: "frequent",
-      description: "Predictable state container for JavaScript apps",
+      description: "Code generation library for TypeScript with integration to GraphQL and Zod",
     },
     {
       name: "React Query",
@@ -84,10 +102,16 @@ export function TechRadar() {
       description: "Progressive JavaScript framework for building UIs",
     },
     {
-      name: "Svelte",
+      name: "React Native",
       category: "frontend",
       level: "exploring",
-      description: "Compiler-based framework that writes minimal JavaScript",
+      description: "Mobile app development framework for React",
+    },
+    {
+      name: "Astro",
+      category: "frontend",
+      level: "exploring",
+      description: "Static site generator for React",
     },
     {
       name: "Solid.js",
@@ -192,10 +216,10 @@ export function TechRadar() {
     activeCategory === "all" ? techItems : techItems.filter((item) => item.category === activeCategory)
 
   const levelRadius = useMemo(() => ({
-    core: 0.25,
-    frequent: 0.5,
-    occasional: 0.75,
-    exploring: 0.95,
+    core: 0.2,        // Innermost circle - expert level
+    frequent: 0.4,    // Second circle - proficient
+    occasional: 0.6,  // Third circle - competent
+    exploring: 0.8,   // Outer circle - learning
   }), [])
 
   const levelColors = useMemo(() => ({
@@ -206,7 +230,7 @@ export function TechRadar() {
   }), [])
 
   // Store tech item positions for interaction
-  const techItemPositions = useRef<{ [key: string]: { x: number; y: number; radius: number } }>({})
+  const techItemPositions = useRef<{ [key: string]: { x: number; y: number; radius: number; labelX?: number; labelY?: number } }>({})
 
   const drawRadar = useCallback(() => {
     const canvas = canvasRef.current
@@ -215,62 +239,79 @@ export function TechRadar() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Set canvas dimensions with device pixel ratio for sharp rendering
-    const dpr = window.devicePixelRatio || 1
+    // Get the container size
     const rect = canvas.getBoundingClientRect()
+    const dpr = window.devicePixelRatio || 1
+    
+    // Use the actual container width, but maintain aspect ratio
+    const containerWidth = rect.width
+    const size = Math.min(containerWidth, 800)
 
-    // Set display size (css pixels)
-    const size = Math.min(rect.width, 600)
-    canvas.style.width = `${size}px`
-    canvas.style.height = `${size}px`
-
-    // Set actual size in memory (scaled to account for extra pixel density)
+    // Update canvas size properly
     canvas.width = size * dpr
     canvas.height = size * dpr
 
-    // Normalize coordinate system to use css pixels
+    // Scale all drawing operations
     ctx.scale(dpr, dpr)
 
+    // Center point and radius
     const centerX = size / 2
     const centerY = size / 2
-    const maxRadius = size / 2 - 20
+    const maxRadius = (size / 2) * 0.85
 
     // Clear canvas
     ctx.clearRect(0, 0, size, size)
 
-    // Draw radar circles
+    // Draw radar circles with gradient
     const levels = ["core", "frequent", "occasional", "exploring"]
     levels.forEach((level) => {
       const radius = maxRadius * levelRadius[level as keyof typeof levelRadius]
       const isHighlighted = hoveredLegendItem === level
 
+      // Create gradient for circle
+      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius)
+      gradient.addColorStop(0, isHighlighted 
+        ? levelColors[level as keyof typeof levelColors] + "20" // 20% opacity
+        : isDark ? "rgba(156, 163, 175, 0.1)" : "rgba(156, 163, 175, 0.05)")
+      gradient.addColorStop(1, "transparent")
+
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
+      ctx.fillStyle = gradient
+      ctx.fill()
+
+      // Draw circle border
       ctx.beginPath()
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
       ctx.strokeStyle = isHighlighted
         ? levelColors[level as keyof typeof levelColors]
-        : isDark
-          ? "rgba(156, 163, 175, 0.3)"
-          : "rgba(156, 163, 175, 0.3)"
+        : isDark ? "rgba(156, 163, 175, 0.3)" : "rgba(156, 163, 175, 0.2)"
       ctx.lineWidth = isHighlighted ? 2 : 1
       ctx.stroke()
 
-      if (isHighlighted) {
-        ctx.fillStyle = levelColors[level as keyof typeof levelColors] + "15" // 15 is hex for 10% opacity
-        ctx.fill()
-      }
-
-      // Add labels for each circle
+      // Add labels with improved readability
       ctx.fillStyle = isHighlighted
         ? levelColors[level as keyof typeof levelColors]
-        : isDark
-          ? "rgba(156, 163, 175, 0.7)"
-          : "rgba(156, 163, 175, 0.7)"
+        : isDark ? "rgba(156, 163, 175, 0.7)" : "rgba(156, 163, 175, 0.7)"
       ctx.font = isHighlighted ? "bold 12px sans-serif" : "12px sans-serif"
       ctx.textAlign = "right"
-      ctx.fillText(level.charAt(0).toUpperCase() + level.slice(1), centerX - radius - 5, centerY)
+      
+      // Add background for label
+      const labelText = level.charAt(0).toUpperCase() + level.slice(1)
+      const textWidth = ctx.measureText(labelText).width
+      const labelX = centerX - radius - 10
+      const labelY = centerY
+      
+      ctx.fillStyle = isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.7)"
+      ctx.fillRect(labelX - textWidth - 5, labelY - 8, textWidth + 10, 16)
+      
+      ctx.fillStyle = isHighlighted
+        ? levelColors[level as keyof typeof levelColors]
+        : isDark ? "rgba(156, 163, 175, 0.7)" : "rgba(156, 163, 175, 0.7)"
+      ctx.fillText(labelText, labelX, labelY)
     })
 
-    // Draw axis lines
+    // Draw axis lines with improved visibility
     const numAxes = 4
     for (let i = 0; i < numAxes; i++) {
       const angle = (i * Math.PI * 2) / numAxes
@@ -278,7 +319,7 @@ export function TechRadar() {
       ctx.beginPath()
       ctx.moveTo(centerX, centerY)
       ctx.lineTo(centerX + Math.cos(angle) * maxRadius, centerY + Math.sin(angle) * maxRadius)
-      ctx.strokeStyle = isDark ? "rgba(156, 163, 175, 0.3)" : "rgba(156, 163, 175, 0.3)"
+      ctx.strokeStyle = isDark ? "rgba(156, 163, 175, 0.2)" : "rgba(156, 163, 175, 0.1)"
       ctx.lineWidth = 1
       ctx.stroke()
     }
@@ -286,7 +327,7 @@ export function TechRadar() {
     // Reset tech item positions
     techItemPositions.current = {}
 
-    // Plot tech items
+    // First pass: Calculate initial positions
     filteredTechItems.forEach((item, index) => {
       const angle = (index * Math.PI * 2) / filteredTechItems.length
       const radius = maxRadius * levelRadius[item.level]
@@ -295,62 +336,107 @@ export function TechRadar() {
       const y = centerY + Math.sin(angle) * radius
 
       // Store position for interaction
-      techItemPositions.current[item.name] = { x, y, radius: 8 }
+      techItemPositions.current[item.name] = { 
+        x, 
+        y, 
+        radius: 8,
+        labelX: x + Math.cos(angle) * 50, // Increased base distance
+        labelY: y + Math.sin(angle) * 50
+      }
+    })
 
+    // Second pass: Adjust label positions to avoid overlap
+    filteredTechItems.forEach((item) => {
+      const pos = techItemPositions.current[item.name]
+      const labelWidth = ctx.measureText(item.name).width + 12 // Add padding
+      const labelHeight = 20
+
+      // Check for collisions with other labels
+      let adjustment = 0
+      let maxTries = 10
+      let hasCollision = true
+
+      while (hasCollision && maxTries > 0) {
+        hasCollision = false
+        for (const [otherName, otherPos] of Object.entries(techItemPositions.current)) {
+          if (otherName === item.name || !otherPos.labelX || !otherPos.labelY) continue
+
+          const xDist = Math.abs(pos.labelX! - otherPos.labelX)
+          const yDist = Math.abs(pos.labelY! - otherPos.labelY)
+          
+          if (xDist < labelWidth && yDist < labelHeight) {
+            hasCollision = true
+            adjustment += 10
+            const angle = Math.atan2(pos.y - centerY, pos.x - centerX)
+            pos.labelX = pos.x + Math.cos(angle) * (50 + adjustment)
+            pos.labelY = pos.y + Math.sin(angle) * (50 + adjustment)
+            break
+          }
+        }
+        maxTries--
+      }
+    })
+
+    // Third pass: Draw everything
+    filteredTechItems.forEach((item) => {
+      const pos = techItemPositions.current[item.name]
       const isHighlighted = hoveredTech?.name === item.name || hoveredLegendItem === item.level
 
-      // Draw point
+      // Draw point with glow effect
       ctx.beginPath()
-      ctx.arc(x, y, isHighlighted ? 10 : 8, 0, Math.PI * 2)
-      ctx.fillStyle = levelColors[item.level as keyof typeof levelColors]
-
+      ctx.arc(pos.x, pos.y, isHighlighted ? 9 : 4, 0, Math.PI * 2)
+      
       if (isHighlighted) {
         ctx.shadowColor = levelColors[item.level as keyof typeof levelColors]
-        ctx.shadowBlur = 10
+        ctx.shadowBlur = 15
       }
-
+      
+      ctx.fillStyle = levelColors[item.level as keyof typeof levelColors]
       ctx.fill()
 
       // Reset shadow
       ctx.shadowColor = "transparent"
       ctx.shadowBlur = 0
 
-      // Draw label
+      // Draw label with improved readability
       ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.8)"
-      ctx.font = isHighlighted ? "bold 12px sans-serif" : "12px sans-serif"
+      ctx.font = isHighlighted ? "bold 14px sans-serif" : "14px sans-serif"
       ctx.textAlign = "center"
       ctx.textBaseline = "middle"
 
-      // Position label based on quadrant to avoid overlap
-      const labelX = x + Math.cos(angle) * 20
-      const labelY = y + Math.sin(angle) * 20
-
-      // Add a subtle background to make text more readable
+      // Add background for label
       const textWidth = ctx.measureText(item.name).width
       ctx.fillStyle = isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.7)"
-      ctx.fillRect(labelX - textWidth / 2 - 3, labelY - 8, textWidth + 6, 16)
+      ctx.fillRect(pos.labelX! - textWidth / 2 - 6, pos.labelY! - 10, textWidth + 12, 20)
 
       ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.8)"
-      ctx.fillText(item.name, labelX, labelY)
+      ctx.fillText(item.name, pos.labelX!, pos.labelY!)
+
+      // Draw connecting line
+      ctx.beginPath()
+      ctx.moveTo(pos.x, pos.y)
+      ctx.lineTo(pos.labelX!, pos.labelY!)
+      ctx.strokeStyle = isDark ? "rgba(156, 163, 175, 0.2)" : "rgba(156, 163, 175, 0.1)"
+      ctx.lineWidth = 1
+      ctx.stroke()
     })
   }, [filteredTechItems, hoveredLegendItem, hoveredTech?.name, isDark, levelColors, levelRadius])
 
-  // Handle canvas mouse interactions
+  // Handle canvas mouse interactions with improved touch support
   const handleCanvasMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current
       if (!canvas) return
 
       const rect = canvas.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+      const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left
+      const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top
 
-      // Check if mouse is over any tech item
+      // Check if mouse is over any tech item with improved hit detection
       let hoveredItem = null
       for (const [name, position] of Object.entries(techItemPositions.current)) {
         const distance = Math.sqrt(Math.pow(x - position.x, 2) + Math.pow(y - position.y, 2))
-        if (distance < position.radius + 2) {
-          // +2 for better hit detection
+        if (distance < position.radius + 5) { // Increased hit area
           hoveredItem = techItems.find((item) => item.name === name) || null
           break
         }
@@ -360,6 +446,17 @@ export function TechRadar() {
     },
     [techItems],
   )
+
+  // Add touch event handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault() // Prevent scrolling while interacting with canvas
+    handleCanvasMouseMove(e)
+  }, [handleCanvasMouseMove])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault() // Prevent scrolling while interacting with canvas
+    handleCanvasMouseMove(e)
+  }, [handleCanvasMouseMove])
 
   const handleMouseLeave = () => {
     setHoveredTech(null)
@@ -372,16 +469,30 @@ export function TechRadar() {
   }, [])
 
   useEffect(() => {
-    drawRadar()
+    let animationFrameId: number
 
-    // Handle window resize
-    const handleResize = () => {
+    const animate = () => {
       drawRadar()
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    // Handle window resize with debounce
+    let resizeTimeout: NodeJS.Timeout
+    const handleResize = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        drawRadar()
+      }, 100)
     }
 
     window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [activeCategory, filteredTechItems, hoveredTech, hoveredLegendItem, drawRadar, isDark])
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [drawRadar])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -410,7 +521,7 @@ export function TechRadar() {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="max-w-4xl mx-auto"
+          className="mx-auto"
         >
           <Tabs defaultValue="all" onValueChange={setActiveCategory}>
             <TabsList className="grid w-full grid-cols-5 mb-8">
@@ -422,16 +533,22 @@ export function TechRadar() {
             </TabsList>
 
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-8">
-                  <div className="flex-1 flex justify-center">
-                    <canvas
-                      ref={canvasRef}
-                      className="max-w-full touch-none"
-                      onMouseMove={handleCanvasMouseMove}
-                      onMouseLeave={handleMouseLeave}
-                      aria-label="Tech radar visualization"
-                    />
+              <CardContent className="p-8">
+                <div className="flex flex-col lg:flex-row gap-8">
+                  <div className="flex-[3] flex justify-center items-center min-h-[800px]">
+                    <div className="relative w-full max-w-[800px] aspect-square">
+                      <canvas
+                        ref={canvasRef}
+                        className="w-full h-full touch-none"
+                        onMouseMove={handleCanvasMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleMouseLeave}
+                        aria-label="Tech radar visualization"
+                        role="img"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex-1">
