@@ -6,7 +6,7 @@ import { useRef, useEffect, useState, useCallback, useMemo } from "react"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useTheme } from "@/lib/providers/theme-provider"
+import { useTheme } from "next-themes"
 import { cn } from "@/utils/cn"
 
 interface TechItem {

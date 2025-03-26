@@ -1,6 +1,6 @@
 "use client"
 
-import { useTheme } from "@/lib/providers/theme-provider"
+import { useTheme } from "next-themes"
 import { cn } from "@/utils/cn"
 import { ThemeToggle } from "@/features/theme/components/theme-toggle"
 import { FaLinkedin } from "react-icons/fa"

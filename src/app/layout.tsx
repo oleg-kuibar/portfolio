@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next/dist/lib/metadata/types/metadata-interface"
 import { Inter, Poppins } from "next/font/google"
-import { ThemeProvider } from "@/lib/providers/theme-provider"
+import { ThemeProvider } from "next-themes"
 import "./globals.css"
 
 const inter = Inter({

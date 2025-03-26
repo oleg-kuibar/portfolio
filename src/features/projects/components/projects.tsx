@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ExternalLinkIcon, GithubIcon, SearchIcon } from "lucide-react"
 import { ProjectFilter } from "./project-filter"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useTheme } from "@/lib/providers/theme-provider"
+import { useTheme } from "next-themes"
 import { cn } from "@/utils/cn"
 import { handleLinkClick } from "@/utils/link-utils"
 
@@ -24,6 +24,7 @@ interface Project {
   demoUrl: string
   githubUrl: string
   featured: boolean
+  poc?: boolean
   details?: {
     challenge: string
     solution: string
@@ -35,11 +36,10 @@ interface Project {
 
 export function Projects() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.1 })
-  const [activeFilter, setActiveFilter] = useState("All")
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const [activeFilter, setActiveFilter] = useState<string>("all")
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
+  const { theme } = useTheme()
 
   const projects = useMemo<Project[]>(() => [
     {
@@ -87,27 +87,6 @@ export function Projects() {
       },
     },
     {
-      id: "single-spa-poc",
-      title: "Single SPA POC",
-      description:
-        "Proof of concept for micro-frontend architecture using Single SPA with React, Angular, and Tailwind.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["Single SPA", "React", "Angular", "Tailwind", "GCP"],
-      category: "Architecture",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false,
-      details: {
-        challenge: "Evaluating micro-frontend architecture for a large enterprise application with multiple teams.",
-        solution:
-          "Built a proof of concept using Single SPA to integrate React and Angular applications with shared styling and state management.",
-        technologies: ["Single SPA", "React", "Angular", "Tailwind CSS", "Google Cloud Platform"],
-        architecture: "Micro-frontend architecture with shell application and multiple feature applications.",
-        results:
-          "Successfully demonstrated the feasibility of micro-frontends, leading to adoption in production projects.",
-      },
-    },
-    {
       id: "single-spa",
       title: "Single-SPA Microfrontends",
       description:
@@ -151,42 +130,47 @@ export function Projects() {
       },
     },
     {
-      id: "ecommerce",
-      title: "E-commerce Platform",
-      description:
-        "A scalable e-commerce platform with product management, cart functionality, and payment processing.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["React", "Node.js", "MongoDB", "Stripe", "Redux"],
-      category: "Full Stack",
+      id: "modern-db-ide",
+      title: "Modern Database IDE",
+      description: "A modern, open-source database IDE inspired by DBeaver, built with an emphasis on user experience and contemporary design principles.",
+      image: "/placeholder.svg?height=400&width=600", 
+      tags: ["Electron", "React", "TypeScript", "SQL", "Database Tools"],
+      category: "Developer Tools",
       demoUrl: "#",
       githubUrl: "#",
-      featured: false,
+      featured: true,
+      poc: true,
       details: {
-        challenge:
-          "Building a scalable e-commerce platform that handles high traffic and complex product configurations.",
+        challenge: 
+          "Traditional database IDEs like DBeaver, while powerful, often have dated UIs and lack modern UX patterns that developers have come to expect.",
         solution:
-          "Implemented a modular architecture with separate services for product management, cart functionality, and payment processing.",
-        technologies: ["React", "Node.js", "MongoDB", "Stripe API", "Redux", "Express"],
-        architecture: "Monolithic frontend with microservices backend architecture.",
-        results: "Platform successfully handles 10,000+ concurrent users with sub-second response times.",
+          "Developed an Electron-based database IDE that maintains DBeaver's powerful features while introducing a modern, intuitive interface with dark mode support and customizable workspaces.",
+        technologies: ["Electron", "React", "TypeScript", "SQL", "Monaco Editor", "Node.js"],
+        results:
+          "Created an open-source alternative that combines robust database management capabilities with contemporary design principles and received positive community feedback.",
       },
     },
     {
-      id: "analytics",
-      title: "Analytics Dashboard",
-      description: "A comprehensive analytics dashboard with data visualization and real-time updates.",
+      id: "voip-solution",
+      title: "VoIP Communication Platform",
+      description: "A modern VoIP solution replacing traditional landline calls with web, iOS and Android applications.",
       image: "/placeholder.svg?height=400&width=600",
-      tags: ["React", "D3.js", "Firebase", "Material UI"],
-      category: "Data Visualization",
+      tags: ["WebRTC", "React Native", "Node.js", "SIP", "VoIP"],
+      category: "Full Stack",
       demoUrl: "#",
-      githubUrl: "#",
-      featured: false,
+      githubUrl: "#", 
+      featured: true,
+      poc: true,
       details: {
-        challenge: "Visualizing complex data sets in an intuitive way with real-time updates.",
+        challenge:
+          "Creating a reliable, cross-platform VoIP solution to replace traditional landline calls while maintaining call quality and reliability.",
         solution:
-          "Created a dashboard with customizable widgets using D3.js for visualizations and Firebase for real-time data.",
-        technologies: ["React", "D3.js", "Firebase", "Material UI", "TypeScript"],
-        results: "Reduced time to insight by 60% compared to previous reporting methods.",
+          "Developed a WebRTC-based system with native mobile apps and web interface, implementing SIP protocol for PSTN integration.",
+        technologies: ["WebRTC", "React Native", "Node.js", "PostgreSQL", "Redis", "SIP.js", "Docker"],
+        architecture:
+          "Microservices architecture with dedicated services for call handling, user management, and PSTN integration.",
+        results:
+          "Successfully deployed solution handling thousands of daily calls across web and mobile platforms with 99.9% uptime and high audio quality.",
       },
     },
   ], []) // Empty dependency array since projects are static
@@ -198,7 +182,7 @@ export function Projects() {
 
   // Filter projects based on active filter
   const filteredProjects = useMemo(() => {
-    if (activeFilter === "All") {
+    if (activeFilter === "all") {
       return projects
     }
     return projects.filter((project) => project.category === activeFilter)
@@ -224,11 +208,11 @@ export function Projects() {
   }
 
   return (
-    <section id="projects" className={cn("py-20", isDark ? "bg-muted/10" : "bg-muted/30")}>
+    <section id="projects" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Projects</h2>
-          <div className={cn("w-20 h-1 mx-auto mb-6", isDark ? "bg-primary/80" : "bg-primary")}></div>
+          <div className="w-20 h-1 mx-auto mb-6 bg-primary"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
             Explore my portfolio of projects that showcase my technical skills, problem-solving abilities, and attention
             to detail.
@@ -261,37 +245,54 @@ export function Projects() {
                   <Card
                     className={cn(
                       "h-full overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 group",
-                      isDark && "bg-card/80 hover:bg-card",
+                      "bg-card"
                     )}
                   >
                     <div className="relative h-48 w-full overflow-hidden">
-                      <Image
-                        src={project.image || "/placeholder.svg"}
-                        alt={project.title}
-                        fill
-                        className={cn(
-                          "object-cover transition-transform duration-500 group-hover:scale-105",
-                          isDark && "dark-image-filter",
-                        )}
-                      />
-                      {project.featured && (
-                        <div className="absolute top-2 right-2">
-                          <Badge variant="default" className={cn(isDark ? "bg-primary/80" : "bg-primary")}>
-                            Featured
-                          </Badge>
+                      {project.image && !project.image.includes("placeholder.svg") ? (
+                        <Image
+                          src={project.image}
+                          alt={project.title}
+                          fill
+                          className={cn(
+                            "object-cover transition-transform duration-500 group-hover:scale-105",
+                            "dark:brightness-90"
+                          )}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-card">
+                          <div className="absolute inset-0 flex items-center justify-center p-6">
+                            <h3 className="text-2xl font-bold text-center text-primary">
+                              {project.title}
+                            </h3>
+                          </div>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-white border-white hover:bg-white/20"
-                          onClick={() => setSelectedProject(project)}
-                        >
-                          <SearchIcon className="mr-2 h-4 w-4" />
-                          View Details
-                        </Button>
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        {project.featured && (
+                          <Badge variant="default" className="bg-primary">
+                            Featured
+                          </Badge>
+                        )}
+                        {project.poc && (
+                          <Badge variant="default" className="bg-orange-500 text-white dark:bg-orange-400">
+                            POC
+                          </Badge>
+                        )}
                       </div>
+                      {project.image && !project.image.includes("placeholder.svg") && (
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-white border-white hover:bg-white/20 hover:text-white transition-colors"
+                            onClick={() => setSelectedProject(project)}
+                          >
+                            <SearchIcon className="mr-2 h-4 w-4" />
+                            View Details
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     <CardHeader>
                       <div className="flex justify-between items-start">
@@ -315,7 +316,6 @@ export function Projects() {
                         variant="outline"
                         size="sm"
                         asChild
-                        className={cn(isDark && "hover:bg-primary/10 hover:text-primary hover:border-primary")}
                       >
                         <a
                           href={project.githubUrl || "#"}
@@ -327,7 +327,10 @@ export function Projects() {
                           Code
                         </a>
                       </Button>
-                      <Button size="sm" asChild>
+                      <Button 
+                        size="sm" 
+                        asChild
+                      >
                         <a
                           href={project.demoUrl || "#"}
                           target="_blank"
@@ -350,8 +353,7 @@ export function Projects() {
           <Button
             variant="outline"
             size="lg"
-            className={cn(isDark && "hover:bg-primary/10 hover:text-primary hover:border-primary")}
-            onClick={() => setActiveFilter("All")}
+            onClick={() => setActiveFilter("all")}
           >
             View All Projects
           </Button>
@@ -360,7 +362,7 @@ export function Projects() {
         {/* Project Details Dialog */}
         <Dialog open={!!selectedProject} onOpenChange={(open) => !open && setSelectedProject(null)}>
           <DialogContent
-            className={cn("max-w-3xl max-h-[90vh] overflow-y-auto", isDark && "bg-card/95 backdrop-blur-sm")}
+            className={cn("max-w-3xl max-h-[90vh] overflow-y-auto", theme === "dark" && "bg-card/95 backdrop-blur-sm")}
           >
             {selectedProject && (
               <>
@@ -377,7 +379,7 @@ export function Projects() {
                     src={selectedProject.image || "/placeholder.svg"}
                     alt={selectedProject.title}
                     fill
-                    className={cn("object-cover", isDark && "dark-image-filter")}
+                    className={cn("object-cover", theme === "dark" && "dark-image-filter")}
                   />
                 </div>
                 <div className="space-y-4">
@@ -426,7 +428,6 @@ export function Projects() {
                     <Button
                       variant="outline"
                       asChild
-                      className={cn(isDark && "hover:bg-primary/10 hover:text-primary hover:border-primary")}
                     >
                       <a
                         href={selectedProject.githubUrl || "#"}
@@ -438,7 +439,9 @@ export function Projects() {
                         View Code
                       </a>
                     </Button>
-                    <Button asChild>
+                    <Button 
+                      asChild
+                    >
                       <a
                         href={selectedProject.demoUrl || "#"}
                         target="_blank"

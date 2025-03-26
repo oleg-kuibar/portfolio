@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowUpIcon } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useTheme } from "@/lib/providers/theme-provider"
+import { useTheme } from "next-themes"
 import { cn } from "@/utils/cn"
 import { scrollToTop } from "@/utils/scroll-utils"
 

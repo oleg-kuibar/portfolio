@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { MailIcon, MapPinIcon } from "lucide-react"
 import { FaLinkedin } from "react-icons/fa"
 import { SiGithub } from "react-icons/si"
-import { useTheme } from "@/lib/providers/theme-provider"
+import { useTheme } from "next-themes"
 import { cn } from "@/utils/cn"
 import { useState } from "react"
 
