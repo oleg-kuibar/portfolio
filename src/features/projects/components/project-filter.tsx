@@ -1,17 +1,19 @@
 "use client"
+
 import { Button } from "@/components/ui/button"
 import { cn } from "@/utils/cn"
+import { ProjectCategory } from "../types/project"
 
 interface ProjectFilterProps {
-  categories: string[]
-  onFilterChange: (category: string) => void
-  activeFilter: string
+  categories: ProjectCategory[]
+  onFilterChange: (category: ProjectCategory) => void
+  activeFilter: ProjectCategory
 }
 
 export function ProjectFilter({ categories, onFilterChange, activeFilter }: ProjectFilterProps) {
   return (
     <div className="flex flex-wrap justify-center gap-2 mb-8">
-      {["All", ...categories].map((category) => (
+      {[ProjectCategory.All, ...categories].map((category) => (
         <Button
           key={category}
           variant={activeFilter === category ? "default" : "outline"}
