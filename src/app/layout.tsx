@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next/dist/lib/metadata/types/metadata-interface"
 import { Inter, Poppins } from "next/font/google"
 import { ThemeProvider } from "next-themes"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
 const inter = Inter({
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
