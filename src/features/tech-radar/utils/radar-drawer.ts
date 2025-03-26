@@ -148,7 +148,7 @@ export const drawRadar = ({
 
     // Draw point with glow effect
     ctx.beginPath()
-    ctx.arc(pos.x, pos.y, isHighlighted ? 9 : 8, 0, Math.PI * 2)
+    ctx.arc(pos.x, pos.y, isHighlighted ? 9 : 4, 0, Math.PI * 2)
     
     if (isHighlighted) {
       ctx.shadowColor = LEVEL_COLORS[item.level as keyof typeof LEVEL_COLORS]
