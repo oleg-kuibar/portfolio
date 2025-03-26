@@ -1,7 +1,7 @@
-import { NavItem } from "../types/nav"
+import { NavItem } from "../types/nav";
 
 // Define which nav items to show
-export const SHOW_BLOG = false
+export const SHOW_BLOG = false;
 
 export const NAV_ITEMS: NavItem[] = [
   { name: "About", href: "#about" },
@@ -11,4 +11,4 @@ export const NAV_ITEMS: NavItem[] = [
   // Conditionally include blog in the navigation
   ...(SHOW_BLOG ? [{ name: "Blog", href: "#blog" }] : []),
   { name: "Contact", href: "#contact" },
-] 
+];

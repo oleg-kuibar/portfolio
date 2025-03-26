@@ -3,6 +3,7 @@
 This guide covers setting up email sending and forwarding in a Next.js application deployed on Vercel using Resend as the email service provider.
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Setting Up Resend](#setting-up-resend)
 3. [Configuring Your Domain](#configuring-your-domain)
@@ -23,12 +24,14 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 ## Setting Up Resend
 
 1. **Create a Resend Account**
+
    - Go to [resend.com](https://resend.com)
    - Sign up for a free account
    - Verify your email address
    - Complete your profile setup
 
 2. **Get Your API Key**
+
    - In the Resend dashboard, go to "API Keys"
    - Click "Create API Key"
    - Give it a name (e.g., "Portfolio Email")
@@ -75,6 +78,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
    ```
 
    ⚠️ Important DNS Notes:
+
    - Some registrars use different terminology:
      - "Host" instead of "Name"
      - "Points to" instead of "Value"
@@ -92,9 +96,10 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 
 1. **Contact Form API Route**
    Create `src/app/api/contact/route.ts`:
+
    ```typescript
-   import { Resend } from 'resend';
-   import { NextResponse } from 'next/server';
+   import { Resend } from "resend";
+   import { NextResponse } from "next/server";
 
    const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -105,8 +110,8 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
        // Validate input
        if (!name || !email || !message) {
          return NextResponse.json(
-           { error: 'Missing required fields' },
-           { status: 400 }
+           { error: "Missing required fields" },
+           { status: 400 },
          );
        }
 
@@ -114,14 +119,14 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
        if (!emailRegex.test(email)) {
          return NextResponse.json(
-           { error: 'Invalid email format' },
-           { status: 400 }
+           { error: "Invalid email format" },
+           { status: 400 },
          );
        }
 
        const data = await resend.emails.send({
-         from: 'Portfolio Contact Form <contact@yourdomain.com>',
-         to: ['contact@yourdomain.com'],
+         from: "Portfolio Contact Form <contact@yourdomain.com>",
+         to: ["contact@yourdomain.com"],
          subject: `New Contact Form Submission from ${name}`,
          html: `
            <h2>New Contact Form Submission</h2>
@@ -135,10 +140,10 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 
        return NextResponse.json({ success: true, data });
      } catch (error) {
-       console.error('Email sending error:', error);
+       console.error("Email sending error:", error);
        return NextResponse.json(
-         { success: false, error: 'Failed to send email' },
-         { status: 500 }
+         { success: false, error: "Failed to send email" },
+         { status: 500 },
        );
      }
    }
@@ -146,61 +151,73 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 
 2. **Email Forwarding API Route**
    Create `src/app/api/forward-email/route.ts`:
+
    ```typescript
-   import { Resend } from 'resend';
-   import { NextResponse } from 'next/server';
-   import crypto from 'crypto';
+   import { Resend } from "resend";
+   import { NextResponse } from "next/server";
+   import crypto from "crypto";
 
    const resend = new Resend(process.env.RESEND_API_KEY);
 
-   function verifyWebhookSignature(payload: string, signature: string, webhookSecret: string) {
-     const hmac = crypto.createHmac('sha256', webhookSecret);
-     const calculatedSignature = hmac.update(payload).digest('hex');
+   function verifyWebhookSignature(
+     payload: string,
+     signature: string,
+     webhookSecret: string,
+   ) {
+     const hmac = crypto.createHmac("sha256", webhookSecret);
+     const calculatedSignature = hmac.update(payload).digest("hex");
      return crypto.timingSafeEqual(
        Buffer.from(signature),
-       Buffer.from(calculatedSignature)
+       Buffer.from(calculatedSignature),
      );
    }
 
    export async function POST(request: Request) {
      try {
-       const signature = request.headers.get('resend-signature');
+       const signature = request.headers.get("resend-signature");
        const body = await request.json();
-       
-       if (body.type === 'email.delivered') {
+
+       if (body.type === "email.delivered") {
          // Verify webhook signature
-         if (!signature || !verifyWebhookSignature(JSON.stringify(body), signature, process.env.RESEND_WEBHOOK_SECRET!)) {
-           console.error('Invalid webhook signature');
+         if (
+           !signature ||
+           !verifyWebhookSignature(
+             JSON.stringify(body),
+             signature,
+             process.env.RESEND_WEBHOOK_SECRET!,
+           )
+         ) {
+           console.error("Invalid webhook signature");
            return NextResponse.json(
-             { error: 'Invalid webhook signature' },
-             { status: 401 }
+             { error: "Invalid webhook signature" },
+             { status: 401 },
            );
          }
 
          const emailData = body.data;
-         
+
          // Log received email for debugging
-         console.log('Received email:', {
+         console.log("Received email:", {
            from: emailData.from,
            subject: emailData.subject,
-           timestamp: new Date().toISOString()
+           timestamp: new Date().toISOString(),
          });
 
          const { data, error } = await resend.emails.send({
-           from: 'Portfolio Contact <contact@yourdomain.com>',
+           from: "Portfolio Contact <contact@yourdomain.com>",
            to: process.env.FORWARD_TO_EMAIL!,
            subject: `[Portfolio Contact] ${emailData.subject}`,
            text: `
    From: ${emailData.from}
    Subject: ${emailData.subject}
-
+   
    ${emailData.text}
            `,
            replyTo: emailData.from,
          });
 
          if (error) {
-           console.error('Forwarding error:', error);
+           console.error("Forwarding error:", error);
            return NextResponse.json({ error }, { status: 400 });
          }
 
@@ -210,35 +227,35 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
        // Handle direct API calls (for testing)
        if (!body.from || !body.subject || !body.text) {
          return NextResponse.json(
-           { error: 'Missing required fields' },
-           { status: 400 }
+           { error: "Missing required fields" },
+           { status: 400 },
          );
        }
 
        const { data, error } = await resend.emails.send({
-         from: 'Portfolio Contact <contact@yourdomain.com>',
+         from: "Portfolio Contact <contact@yourdomain.com>",
          to: process.env.FORWARD_TO_EMAIL!,
          subject: `[Portfolio Contact] ${body.subject}`,
          text: `
    From: ${body.from}
    Subject: ${body.subject}
-
+   
    ${body.text}
          `,
          replyTo: body.from,
        });
 
        if (error) {
-         console.error('Forwarding error:', error);
+         console.error("Forwarding error:", error);
          return NextResponse.json({ error }, { status: 400 });
        }
 
        return NextResponse.json({ success: true, data });
      } catch (error) {
-       console.error('Internal server error:', error);
+       console.error("Internal server error:", error);
        return NextResponse.json(
-         { error: 'Internal server error' },
-         { status: 500 }
+         { error: "Internal server error" },
+         { status: 500 },
        );
      }
    }
@@ -248,6 +265,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 
 1. **Local Development**
    Create or update `.env.local`:
+
    ```bash
    # Resend API Key
    RESEND_API_KEY=re_your_api_key_here
@@ -260,10 +278,12 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
    ```
 
 2. **Vercel Environment Variables**
+
    - Go to your Vercel project dashboard
    - Click on "Settings"
    - Select "Environment Variables"
    - Add each variable:
+
      ```
      Name: RESEND_API_KEY
      Value: re_your_api_key_here
@@ -277,6 +297,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
      Value: your.protonmail@address
      Environment: Production, Preview, Development
      ```
+
    - Click "Save" for each variable
    - Redeploy your application to apply changes
 
@@ -284,6 +305,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 
 1. **Local Testing**
    Create a test script `test-api.sh`:
+
    ```bash
    #!/bin/bash
 
@@ -324,6 +346,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 ## Deployment
 
 1. **Vercel Deployment**
+
    - Push your code to GitHub:
      ```bash
      git add .
@@ -358,6 +381,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 ## Troubleshooting
 
 1. **Emails Not Being Received**
+
    - Check DNS records are properly configured
    - Verify domain is verified in Resend
    - Check spam folder
@@ -366,6 +390,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
    - Verify MX record propagation using [MXToolbox](https://mxtoolbox.com)
 
 2. **Webhook Issues**
+
    - Verify webhook URL is correct
    - Check webhook secret is properly set
    - Monitor Vercel logs for errors
@@ -385,6 +410,7 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
      ```
 
 3. **Common Issues**
+
    - DNS propagation delay (can take up to 24 hours)
    - Incorrect API key
    - Missing environment variables
@@ -406,4 +432,4 @@ This guide covers setting up email sending and forwarding in a Next.js applicati
 - [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
 - [DNS Records Guide](https://resend.com/docs/domains/verify-domain)
 - [Webhook Testing Guide](https://resend.com/docs/webhooks)
-- [Email Deliverability Guide](https://resend.com/docs/deliverability) 
+- [Email Deliverability Guide](https://resend.com/docs/deliverability)

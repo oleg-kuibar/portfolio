@@ -1,27 +1,47 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/utils/cn"
-import type { ContactFormState } from "../types/contact"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/utils/cn";
+import type { ContactFormState } from "../types/contact";
 
 interface ContactFormProps {
-  isDark: boolean
-  formState: ContactFormState
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
-  handleSubmit: (e: React.FormEvent) => Promise<void>
+  isDark: boolean;
+  formState: ContactFormState;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
-export function ContactForm({ isDark, formState, handleChange, handleSubmit }: ContactFormProps) {
-  const { data, isSubmitting, submitSuccess } = formState
+export function ContactForm({
+  isDark,
+  formState,
+  handleChange,
+  handleSubmit,
+}: ContactFormProps) {
+  const { data, isSubmitting, submitSuccess } = formState;
 
   return (
-    <Card className={cn("border-none shadow-md", isDark && "bg-card/80 backdrop-blur-sm")}>
+    <Card
+      className={cn(
+        "border-none shadow-md",
+        isDark && "bg-card/80 backdrop-blur-sm",
+      )}
+    >
       <CardHeader>
         <CardTitle>Send Me a Message</CardTitle>
-        <CardDescription>I&apos;ll get back to you as soon as possible</CardDescription>
+        <CardDescription>
+          I&apos;ll get back to you as soon as possible
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -37,7 +57,9 @@ export function ContactForm({ isDark, formState, handleChange, handleSubmit }: C
                 value={data.name}
                 onChange={handleChange}
                 required
-                className={cn(isDark && "bg-card border-muted focus:border-primary/50")}
+                className={cn(
+                  isDark && "bg-card border-muted focus:border-primary/50",
+                )}
               />
             </div>
             <div className="space-y-2">
@@ -52,7 +74,9 @@ export function ContactForm({ isDark, formState, handleChange, handleSubmit }: C
                 value={data.email}
                 onChange={handleChange}
                 required
-                className={cn(isDark && "bg-card border-muted focus:border-primary/50")}
+                className={cn(
+                  isDark && "bg-card border-muted focus:border-primary/50",
+                )}
               />
             </div>
           </div>
@@ -67,7 +91,9 @@ export function ContactForm({ isDark, formState, handleChange, handleSubmit }: C
               value={data.subject}
               onChange={handleChange}
               required
-              className={cn(isDark && "bg-card border-muted focus:border-primary/50")}
+              className={cn(
+                isDark && "bg-card border-muted focus:border-primary/50",
+              )}
             />
           </div>
           <div className="space-y-2">
@@ -82,7 +108,9 @@ export function ContactForm({ isDark, formState, handleChange, handleSubmit }: C
               value={data.message}
               onChange={handleChange}
               required
-              className={cn(isDark && "bg-card border-muted focus:border-primary/50")}
+              className={cn(
+                isDark && "bg-card border-muted focus:border-primary/50",
+              )}
             />
           </div>
 
@@ -92,15 +120,11 @@ export function ContactForm({ isDark, formState, handleChange, handleSubmit }: C
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
-} 
+  );
+}

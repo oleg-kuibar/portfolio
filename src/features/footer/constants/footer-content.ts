@@ -1,4 +1,4 @@
-import type { FooterContent } from "../types/footer"
+import type { FooterContent } from "../types/footer";
 
 export const FOOTER_CONTENT: FooterContent = {
   name: "Oleg Kuibar",
@@ -18,4 +18,4 @@ export const FOOTER_CONTENT: FooterContent = {
     },
   ],
   techStack: ["Next.js", "TypeScript", "Tailwind CSS"],
-} 
+};

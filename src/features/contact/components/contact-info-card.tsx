@@ -1,42 +1,60 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/utils/cn"
-import { MailIcon, MapPinIcon } from "lucide-react"
-import { FaLinkedin } from "react-icons/fa"
-import { SiGithub } from "react-icons/si"
-import { CONTACT_INFO } from "../constants/contact-info"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { cn } from "@/utils/cn";
+import { MailIcon, MapPinIcon } from "lucide-react";
+import { FaLinkedin } from "react-icons/fa";
+import { SiGithub } from "react-icons/si";
+import { CONTACT_INFO } from "../constants/contact-info";
 
 interface ContactInfoCardProps {
-  isDark: boolean
+  isDark: boolean;
 }
 
 const getIcon = (iconName: string) => {
   switch (iconName) {
     case "mail":
-      return <MailIcon className="h-5 w-5" />
+      return <MailIcon className="h-5 w-5" />;
     case "linkedin":
-      return <FaLinkedin className="h-5 w-5" />
+      return <FaLinkedin className="h-5 w-5" />;
     case "github":
-      return <SiGithub className="h-5 w-5" />
+      return <SiGithub className="h-5 w-5" />;
     case "map":
-      return <MapPinIcon className="h-5 w-5" />
+      return <MapPinIcon className="h-5 w-5" />;
     default:
-      return null
+      return null;
   }
-}
+};
 
 export function ContactInfoCard({ isDark }: ContactInfoCardProps) {
   return (
-    <Card className={cn("h-full border-none shadow-md", isDark && "bg-card/80 backdrop-blur-sm")}>
+    <Card
+      className={cn(
+        "h-full border-none shadow-md",
+        isDark && "bg-card/80 backdrop-blur-sm",
+      )}
+    >
       <CardHeader>
         <CardTitle>Contact Information</CardTitle>
-        <CardDescription>Feel free to reach out through any of these channels</CardDescription>
+        <CardDescription>
+          Feel free to reach out through any of these channels
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {CONTACT_INFO.map((item) => (
           <div key={item.title} className="flex items-start">
-            <div className={cn("mr-3 mt-0.5", isDark ? "text-primary/80" : "text-primary")}>
+            <div
+              className={cn(
+                "mr-3 mt-0.5",
+                isDark ? "text-primary/80" : "text-primary",
+              )}
+            >
               {getIcon(item.icon)}
             </div>
             <div>
@@ -63,5 +81,5 @@ export function ContactInfoCard({ isDark }: ContactInfoCardProps) {
         ))}
       </CardContent>
     </Card>
-  )
-} 
+  );
+}

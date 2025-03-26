@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { MenuIcon, XIcon } from "lucide-react"
-import { cn } from "@/utils/cn"
-import { ThemeToggle } from "@/features/theme/components/theme-toggle"
-import { useNav } from "../hooks/use-nav"
-import { DesktopNav } from "./desktop-nav"
-import { MobileNav } from "./mobile-nav"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { MenuIcon, XIcon } from "lucide-react";
+import { cn } from "@/utils/cn";
+import { ThemeToggle } from "@/features/theme/components/theme-toggle";
+import { useNav } from "../hooks/use-nav";
+import { DesktopNav } from "./desktop-nav";
+import { MobileNav } from "./mobile-nav";
 
 export function Navbar() {
   const {
@@ -18,14 +18,16 @@ export function Navbar() {
     headerRef,
     toggleMenu,
     closeMenu,
-  } = useNav()
+  } = useNav();
 
   return (
     <header
       ref={headerRef}
       className={cn(
         "fixed top-0 w-full z-50 transition-all duration-300",
-        scrolled ? "bg-background/80 backdrop-blur-md shadow-sm dark:bg-background/90" : "bg-transparent",
+        scrolled
+          ? "bg-background/80 backdrop-blur-md shadow-sm dark:bg-background/90"
+          : "bg-transparent",
       )}
     >
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -46,7 +48,11 @@ export function Navbar() {
             className="md:hidden rounded-full"
             onClick={toggleMenu}
           >
-            {isOpen ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+            {isOpen ? (
+              <XIcon className="h-5 w-5" />
+            ) : (
+              <MenuIcon className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
@@ -61,6 +67,5 @@ export function Navbar() {
         />
       )}
     </header>
-  )
+  );
 }
-

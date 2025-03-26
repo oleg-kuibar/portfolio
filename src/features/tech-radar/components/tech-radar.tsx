@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useCallback, useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useTheme } from "next-themes"
-import { cn } from "@/utils/cn"
-import { useTechRadar } from "../hooks/use-tech-radar"
-import { drawRadar } from "../utils/radar-drawer"
-import { LEVEL_COLORS, LEVEL_DESCRIPTIONS } from "../constants/radar-config"
+import type React from "react";
+import { useEffect, useCallback, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTheme } from "next-themes";
+import { cn } from "@/utils/cn";
+import { useTechRadar } from "../hooks/use-tech-radar";
+import { drawRadar } from "../utils/radar-drawer";
+import { LEVEL_COLORS, LEVEL_DESCRIPTIONS } from "../constants/radar-config";
 
 export function TechRadar() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const {
     canvasRef,
@@ -29,34 +29,34 @@ export function TechRadar() {
     handleTouchMove,
     handleMouseLeave,
     handleLegendItemHover,
-  } = useTechRadar()
+  } = useTechRadar();
 
   const drawRadarCallback = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     // Get the container size
-    const rect = canvas.getBoundingClientRect()
-    const dpr = window.devicePixelRatio || 1
-    
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
     // Use the actual container width, but maintain aspect ratio
-    const containerWidth = rect.width
-    const size = Math.min(containerWidth, 800)
+    const containerWidth = rect.width;
+    const size = Math.min(containerWidth, 800);
 
     // Update canvas size properly
-    canvas.width = size * dpr
-    canvas.height = size * dpr
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
 
     // Scale all drawing operations
-    ctx.scale(dpr, dpr)
+    ctx.scale(dpr, dpr);
 
     // Center point and radius
-    const centerX = size / 2
-    const centerY = size / 2
-    const maxRadius = (size / 2) * 0.85
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const maxRadius = (size / 2) * 0.85;
 
     drawRadar({
       ctx,
@@ -69,34 +69,41 @@ export function TechRadar() {
       hoveredTech,
       isDark,
       techItemPositions: techItemPositions.current,
-    })
-  }, [canvasRef, filteredTechItems, hoveredLegendItem, hoveredTech, isDark, techItemPositions])
+    });
+  }, [
+    canvasRef,
+    filteredTechItems,
+    hoveredLegendItem,
+    hoveredTech,
+    isDark,
+    techItemPositions,
+  ]);
 
   useEffect(() => {
-    let animationFrameId: number
+    let animationFrameId: number;
 
     const animate = () => {
-      drawRadarCallback()
-      animationFrameId = requestAnimationFrame(animate)
-    }
+      drawRadarCallback();
+      animationFrameId = requestAnimationFrame(animate);
+    };
 
-    animate()
+    animate();
 
     // Handle window resize with debounce
-    let resizeTimeout: NodeJS.Timeout
+    let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
-      clearTimeout(resizeTimeout)
+      clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        drawRadarCallback()
-      }, 100)
-    }
+        drawRadarCallback();
+      }, 100);
+    };
 
-    window.addEventListener("resize", handleResize)
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", handleResize)
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [drawRadarCallback])
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [drawRadarCallback]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -106,7 +113,7 @@ export function TechRadar() {
         duration: 0.5,
       },
     },
-  }
+  };
 
   return (
     <section id="tech-radar" className="py-20">
@@ -115,8 +122,8 @@ export function TechRadar() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Tech Radar</h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
-            A visual representation of my technology experience and interests, from core expertise to technologies I&apos;m
-            exploring.
+            A visual representation of my technology experience and interests,
+            from core expertise to technologies I&apos;m exploring.
           </p>
         </div>
 
@@ -165,7 +172,9 @@ export function TechRadar() {
                             key={level}
                             className={cn(
                               "flex items-center gap-2 p-2 rounded-md transition-colors",
-                              hoveredLegendItem === level ? "bg-muted/50" : "hover:bg-muted/30",
+                              hoveredLegendItem === level
+                                ? "bg-muted/50"
+                                : "hover:bg-muted/30",
                             )}
                             onMouseEnter={() => handleLegendItemHover(level)}
                             onMouseLeave={() => handleLegendItemHover(null)}
@@ -174,7 +183,7 @@ export function TechRadar() {
                             aria-label={`Filter by ${level} technologies`}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
-                                handleLegendItemHover(level)
+                                handleLegendItemHover(level);
                               }
                             }}
                           >
@@ -182,9 +191,15 @@ export function TechRadar() {
                               className="w-4 h-4 rounded-full"
                               style={{ backgroundColor: color }}
                             />
-                            <span className="capitalize font-medium">{level}</span>
+                            <span className="capitalize font-medium">
+                              {level}
+                            </span>
                             <span className="text-foreground/60 text-sm">
-                              {LEVEL_DESCRIPTIONS[level as keyof typeof LEVEL_DESCRIPTIONS]}
+                              {
+                                LEVEL_DESCRIPTIONS[
+                                  level as keyof typeof LEVEL_DESCRIPTIONS
+                                ]
+                              }
                             </span>
                           </div>
                         ))}
@@ -192,20 +207,30 @@ export function TechRadar() {
 
                       {hoveredTech && (
                         <motion.div
-                          className={cn("mt-6 p-4 rounded-lg", isDark ? "bg-muted/30" : "bg-muted")}
+                          className={cn(
+                            "mt-6 p-4 rounded-lg",
+                            isDark ? "bg-muted/30" : "bg-muted",
+                          )}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
                         >
                           <h4 className="font-semibold">{hoveredTech.name}</h4>
-                          <p className="text-sm text-foreground/70 mt-1">{hoveredTech.description}</p>
+                          <p className="text-sm text-foreground/70 mt-1">
+                            {hoveredTech.description}
+                          </p>
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full capitalize">
                               {hoveredTech.category}
                             </span>
                             <span
                               className="text-xs px-2 py-1 rounded-full capitalize text-white"
-                              style={{ backgroundColor: LEVEL_COLORS[hoveredTech.level as keyof typeof LEVEL_COLORS] }}
+                              style={{
+                                backgroundColor:
+                                  LEVEL_COLORS[
+                                    hoveredTech.level as keyof typeof LEVEL_COLORS
+                                  ],
+                              }}
                             >
                               {hoveredTech.level}
                             </span>
@@ -221,6 +246,5 @@ export function TechRadar() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
-

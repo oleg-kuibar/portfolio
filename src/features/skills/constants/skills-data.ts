@@ -1,9 +1,10 @@
-import type { SkillCategory } from "../types/skill"
+import type { SkillCategory } from "../types/skill";
 
 export const SKILLS_DATA: SkillCategory[] = [
   {
     name: "Frontend Development",
-    description: "Core technologies and frameworks for building modern web applications",
+    description:
+      "Core technologies and frameworks for building modern web applications",
     skills: [
       {
         name: "React",
@@ -12,7 +13,10 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 8,
         projects: 8,
         certifications: ["React Certified Developer"],
-        notableAchievements: ["Led migration of legacy app to React", "Developed reusable component library"]
+        notableAchievements: [
+          "Led migration of legacy app to React",
+          "Developed reusable component library",
+        ],
       },
       {
         name: "TypeScript",
@@ -21,7 +25,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 6,
         projects: 7,
         certifications: ["TypeScript Advanced Certification"],
-        notableAchievements: []
+        notableAchievements: [],
       },
       {
         name: "Next.js",
@@ -30,7 +34,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 5,
         projects: 6,
         certifications: [],
-        notableAchievements: ["Built high-performance SSR applications"]
+        notableAchievements: ["Built high-performance SSR applications"],
       },
       {
         name: "Angular",
@@ -39,7 +43,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 5,
         projects: 6,
         certifications: ["Angular Certified Developer"],
-        notableAchievements: ["Built enterprise-level applications"]
+        notableAchievements: ["Built enterprise-level applications"],
       },
       {
         name: "Tailwind CSS",
@@ -48,7 +52,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 4,
         projects: 5,
         certifications: [],
-        notableAchievements: ["Created responsive design system"]
+        notableAchievements: ["Created responsive design system"],
       },
       {
         name: "Zustand",
@@ -57,7 +61,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 3,
         projects: 4,
         certifications: [],
-        notableAchievements: ["Implemented global state management"]
+        notableAchievements: ["Implemented global state management"],
       },
       {
         name: "Testing (Vitest, RTL, Playwright)",
@@ -66,13 +70,14 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 4,
         projects: 6,
         certifications: [],
-        notableAchievements: ["Set up comprehensive testing suite"]
-      }
-    ]
+        notableAchievements: ["Set up comprehensive testing suite"],
+      },
+    ],
   },
   {
     name: "Backend & DevOps",
-    description: "Server-side technologies, infrastructure, and development operations",
+    description:
+      "Server-side technologies, infrastructure, and development operations",
     skills: [
       {
         name: "Node.js",
@@ -81,7 +86,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 6,
         projects: 7,
         certifications: ["Node.js Certified Developer"],
-        notableAchievements: []
+        notableAchievements: [],
       },
       {
         name: "PostgreSQL",
@@ -90,7 +95,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 4,
         projects: 5,
         certifications: [],
-        notableAchievements: []
+        notableAchievements: [],
       },
       {
         name: "MongoDB",
@@ -99,7 +104,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 4,
         projects: 5,
         certifications: [],
-        notableAchievements: []
+        notableAchievements: [],
       },
       {
         name: "Docker",
@@ -108,7 +113,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 3,
         projects: 4,
         certifications: [],
-        notableAchievements: ["Containerized microservices architecture"]
+        notableAchievements: ["Containerized microservices architecture"],
       },
       {
         name: "AWS",
@@ -117,7 +122,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 4,
         projects: 5,
         certifications: ["AWS Certified Developer"],
-        notableAchievements: []
+        notableAchievements: [],
       },
       {
         name: "GraphQL",
@@ -126,9 +131,9 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 3,
         projects: 4,
         certifications: [],
-        notableAchievements: ["Implemented efficient data fetching"]
-      }
-    ]
+        notableAchievements: ["Implemented efficient data fetching"],
+      },
+    ],
   },
   {
     name: "Architecture & Leadership",
@@ -141,7 +146,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 6,
         projects: 7,
         certifications: [],
-        notableAchievements: ["Designed scalable microservices architecture"]
+        notableAchievements: ["Designed scalable microservices architecture"],
       },
       {
         name: "Technical Leadership",
@@ -150,7 +155,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 5,
         projects: 6,
         certifications: [],
-        notableAchievements: ["Led frontend development team"]
+        notableAchievements: ["Led frontend development team"],
       },
       {
         name: "Performance Optimization",
@@ -159,7 +164,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 6,
         projects: 6,
         certifications: [],
-        notableAchievements: ["Improved application load times by 40%"]
+        notableAchievements: ["Improved application load times by 40%"],
       },
       {
         name: "Code Reviews",
@@ -168,7 +173,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 6,
         projects: 8,
         certifications: [],
-        notableAchievements: ["Established code review guidelines"]
+        notableAchievements: ["Established code review guidelines"],
       },
       {
         name: "Mentoring",
@@ -177,7 +182,7 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 4,
         projects: 5,
         certifications: [],
-        notableAchievements: ["Mentored junior developers"]
+        notableAchievements: ["Mentored junior developers"],
       },
       {
         name: "Documentation",
@@ -186,8 +191,8 @@ export const SKILLS_DATA: SkillCategory[] = [
         yearsOfExperience: 6,
         projects: 7,
         certifications: [],
-        notableAchievements: ["Created comprehensive technical documentation"]
-      }
-    ]
-  }
-] 
+        notableAchievements: ["Created comprehensive technical documentation"],
+      },
+    ],
+  },
+];

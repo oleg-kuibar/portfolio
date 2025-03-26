@@ -8,23 +8,23 @@ export enum ProjectCategory {
 }
 
 export interface ProjectDetails {
-  challenge: string
-  solution: string
-  technologies: string[]
-  architecture?: string
-  results?: string
+  challenge: string;
+  solution: string;
+  technologies: string[];
+  architecture?: string;
+  results?: string;
 }
 
 export interface Project {
-  id: string
-  title: string
-  description: string
-  image: string
-  tags: string[]
-  category: ProjectCategory
-  demoUrl: string
-  githubUrl: string
-  featured: boolean
-  poc?: boolean
-  details?: ProjectDetails
-} 
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  category: ProjectCategory;
+  demoUrl: string;
+  githubUrl: string;
+  featured: boolean;
+  poc?: boolean;
+  details?: ProjectDetails;
+}

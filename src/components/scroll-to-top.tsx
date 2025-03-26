@@ -1,43 +1,47 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowUpIcon } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useTheme } from "next-themes"
-import { cn } from "@/lib/utils"
-import { scrollToTop } from "@/lib/scroll-utils"
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
+import { scrollToTop } from "@/lib/scroll-utils";
 
 export function ScrollToTop() {
-  const [isVisible, setIsVisible] = useState(false)
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
-  const observerRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting)
+        setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.1 }
-    )
+      { threshold: 0.1 },
+    );
 
-    const currentRef = observerRef.current
+    const currentRef = observerRef.current;
     if (currentRef) {
-      observer.observe(currentRef)
+      observer.observe(currentRef);
     }
 
     return () => {
       if (currentRef) {
-        observer.unobserve(currentRef)
+        observer.unobserve(currentRef);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <>
       {/* Invisible sentinel element at the top of the page */}
-      <div ref={observerRef} className="absolute top-0 h-[300px] w-full pointer-events-none" aria-hidden="true" />
+      <div
+        ref={observerRef}
+        className="absolute top-0 h-[300px] w-full pointer-events-none"
+        aria-hidden="true"
+      />
 
       <AnimatePresence>
         {isVisible && (
@@ -51,7 +55,10 @@ export function ScrollToTop() {
             <Button
               variant="default"
               size="icon"
-              className={cn("rounded-full shadow-lg", isDark && "dark-glow bg-primary/90 hover:bg-primary")}
+              className={cn(
+                "rounded-full shadow-lg",
+                isDark && "dark-glow bg-primary/90 hover:bg-primary",
+              )}
               onClick={scrollToTop}
               aria-label="Scroll to top of page"
               title="Scroll to top"
@@ -62,6 +69,5 @@ export function ScrollToTop() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
-

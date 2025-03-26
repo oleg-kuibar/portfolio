@@ -1,18 +1,18 @@
-import type { Variants } from "framer-motion"
+import type { Variants } from "framer-motion";
 
 export interface AboutCard {
-  icon: string
-  title: string
-  description: string
+  icon: string;
+  title: string;
+  description: string;
 }
 
 export interface AboutContent {
-  title: string
-  subtitle: string
+  title: string;
+  subtitle: string;
   journey: {
-    title: string
-    paragraphs: string[]
-  }
+    title: string;
+    paragraphs: string[];
+  };
 }
 
-export type AboutAnimationVariants = Variants 
+export type AboutAnimationVariants = Variants;

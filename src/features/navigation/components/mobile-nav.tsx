@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { cn } from "@/utils/cn"
-import { scrollToElement } from "@/utils/scroll-utils"
-import { NAV_ITEMS } from "../constants/nav-items"
-import { ThemeToggle } from "@/features/theme/components/theme-toggle"
-import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link";
+import { cn } from "@/utils/cn";
+import { scrollToElement } from "@/utils/scroll-utils";
+import { NAV_ITEMS } from "../constants/nav-items";
+import { ThemeToggle } from "@/features/theme/components/theme-toggle";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MobileNavProps {
-  isOpen: boolean
-  scrolled: boolean
-  activeSection: string
-  closeMenu: () => void
+  isOpen: boolean;
+  scrolled: boolean;
+  activeSection: string;
+  closeMenu: () => void;
 }
 
 const menuVariants = {
@@ -36,7 +36,7 @@ const menuVariants = {
       ease: "easeInOut",
     },
   },
-}
+};
 
 const itemVariants = {
   closed: { y: -20, opacity: 0 },
@@ -49,13 +49,18 @@ const itemVariants = {
       ease: "easeOut",
     },
   }),
-}
+};
 
-export function MobileNav({ isOpen, scrolled, activeSection, closeMenu }: MobileNavProps) {
+export function MobileNav({
+  isOpen,
+  scrolled,
+  activeSection,
+  closeMenu,
+}: MobileNavProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] safe-area-padding overscroll-none touch-none"
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
@@ -85,7 +90,7 @@ export function MobileNav({ isOpen, scrolled, activeSection, closeMenu }: Mobile
           >
             <nav className="flex flex-col h-full safe-area-top">
               {/* Navigation Links */}
-              <motion.div 
+              <motion.div
                 className="flex-1 flex flex-col items-center justify-center py-6 overflow-y-auto overscroll-contain"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -111,9 +116,9 @@ export function MobileNav({ isOpen, scrolled, activeSection, closeMenu }: Mobile
                           : "text-foreground/70 hover:text-primary",
                       )}
                       onClick={(e) => {
-                        e.preventDefault()
-                        scrollToElement(item.href.substring(1))
-                        closeMenu()
+                        e.preventDefault();
+                        scrollToElement(item.href.substring(1));
+                        closeMenu();
                       }}
                     >
                       {item.name}
@@ -138,5 +143,5 @@ export function MobileNav({ isOpen, scrolled, activeSection, closeMenu }: Mobile
         </div>
       )}
     </AnimatePresence>
-  )
-} 
+  );
+}

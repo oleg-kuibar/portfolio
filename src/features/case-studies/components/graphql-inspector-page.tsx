@@ -1,10 +1,10 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeftIcon, ExternalLinkIcon } from "lucide-react"
-import { FaGithub } from "react-icons/fa"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeftIcon, ExternalLinkIcon } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 
 export function GraphQLInspectorPage() {
   return (
@@ -22,7 +22,9 @@ export function GraphQLInspectorPage() {
 
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">GraphQL Network Inspector</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                GraphQL Network Inspector
+              </h1>
               <p className="text-xl text-foreground/70 mb-6">
                 My open source contribution to a popular GraphQL debugging tool
               </p>
@@ -83,22 +85,28 @@ export function GraphQLInspectorPage() {
             <h2 className="text-2xl font-bold mb-6">The Challenge</h2>
             <div className="prose dark:prose-invert max-w-none">
               <p>
-                As a developer working extensively with GraphQL APIs, I relied heavily on the GraphQL Network Inspector
-                Chrome extension for debugging and understanding API interactions. This popular tool provides a
-                specialized interface for inspecting GraphQL queries, variables, and responses.
+                As a developer working extensively with GraphQL APIs, I relied
+                heavily on the GraphQL Network Inspector Chrome extension for
+                debugging and understanding API interactions. This popular tool
+                provides a specialized interface for inspecting GraphQL queries,
+                variables, and responses.
               </p>
 
               <p>
-                However, I noticed a significant gap in its functionality: there was no way to easily share GraphQL
-                requests with team members or include them in bug reports. During debugging sessions, ticket creation,
-                or pair programming, I frequently needed to share the exact request for others to reproduce issues or
-                understand the API behavior.
+                However, I noticed a significant gap in its functionality: there
+                was no way to easily share GraphQL requests with team members or
+                include them in bug reports. During debugging sessions, ticket
+                creation, or pair programming, I frequently needed to share the
+                exact request for others to reproduce issues or understand the
+                API behavior.
               </p>
 
               <p>
-                The standard approach would be to use cURL commands, which are universally understood and can be
-                executed in any terminal. But manually converting GraphQL requests to cURL format was tedious and
-                error-prone, especially with complex queries and authentication headers.
+                The standard approach would be to use cURL commands, which are
+                universally understood and can be executed in any terminal. But
+                manually converting GraphQL requests to cURL format was tedious
+                and error-prone, especially with complex queries and
+                authentication headers.
               </p>
             </div>
           </section>
@@ -107,13 +115,16 @@ export function GraphQLInspectorPage() {
             <h2 className="text-2xl font-bold mb-6">My Contribution</h2>
             <div className="prose dark:prose-invert max-w-none">
               <p>
-                I decided to contribute to this open-source project by implementing a &quot;Copy as cURL&quot; feature. This would
+                I decided to contribute to this open-source project by
+                implementing a &quot;Copy as cURL&quot; feature. This would
                 allow developers to:
               </p>
 
               <ul>
                 <li>Generate a complete cURL command with a single click</li>
-                <li>Include all headers, variables, and authentication tokens</li>
+                <li>
+                  Include all headers, variables, and authentication tokens
+                </li>
                 <li>Easily share the exact request with team members</li>
                 <li>Paste the command directly into terminal for testing</li>
                 <li>Include in bug reports or documentation</li>
@@ -122,22 +133,30 @@ export function GraphQLInspectorPage() {
               <p>The implementation required careful handling of:</p>
 
               <ul>
-                <li>Proper escaping of special characters in the query and variables</li>
+                <li>
+                  Proper escaping of special characters in the query and
+                  variables
+                </li>
                 <li>Formatting the command for readability</li>
                 <li>Preserving all HTTP headers, including authentication</li>
-                <li>Ensuring the command works across different operating systems</li>
+                <li>
+                  Ensuring the command works across different operating systems
+                </li>
               </ul>
 
               <p>
-                I submitted a pull request with the new feature, complete with tests and documentation. After some
-                feedback and refinements, my contribution was merged into the main project.
+                I submitted a pull request with the new feature, complete with
+                tests and documentation. After some feedback and refinements, my
+                contribution was merged into the main project.
               </p>
             </div>
 
             <div className="mt-8">
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Implementation Highlights</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Implementation Highlights
+                  </h3>
                   <div className="bg-muted p-4 rounded-md overflow-x-auto text-sm font-mono">
                     <pre>{`// Function to generate cURL command from GraphQL request
 function generateCurlCommand(request) {
@@ -167,8 +186,8 @@ function generateCurlCommand(request) {
 }`}</pre>
                   </div>
                   <p className="text-sm text-foreground/70 mt-4">
-                    The core function that transforms a GraphQL request into a properly formatted and escaped cURL
-                    command.
+                    The core function that transforms a GraphQL request into a
+                    properly formatted and escaped cURL command.
                   </p>
                 </CardContent>
               </Card>
@@ -179,22 +198,27 @@ function generateCurlCommand(request) {
             <h2 className="text-2xl font-bold mb-6">Impact and Results</h2>
             <div className="prose dark:prose-invert max-w-none">
               <p>
-                The &quot;Copy as cURL&quot; feature has been well-received by the community and is now a standard part of the
-                GraphQL Network Inspector extension. It has:
+                The &quot;Copy as cURL&quot; feature has been well-received by
+                the community and is now a standard part of the GraphQL Network
+                Inspector extension. It has:
               </p>
 
               <ul>
                 <li>
-                  <strong>Streamlined debugging workflows</strong> for developers working with GraphQL
+                  <strong>Streamlined debugging workflows</strong> for
+                  developers working with GraphQL
                 </li>
                 <li>
-                  <strong>Improved collaboration</strong> by making it easier to share exact API requests
+                  <strong>Improved collaboration</strong> by making it easier to
+                  share exact API requests
                 </li>
                 <li>
-                  <strong>Enhanced documentation</strong> by allowing precise API examples in tickets and docs
+                  <strong>Enhanced documentation</strong> by allowing precise
+                  API examples in tickets and docs
                 </li>
                 <li>
-                  <strong>Saved time</strong> by eliminating the need to manually construct cURL commands
+                  <strong>Saved time</strong> by eliminating the need to
+                  manually construct cURL commands
                 </li>
               </ul>
 
@@ -209,7 +233,9 @@ function generateCurlCommand(request) {
               </ul>
 
               <p>
-                I&apos;m proud to have contributed to this project and to have helped improve the developer experience for GraphQL developers worldwide.
+                I&apos;m proud to have contributed to this project and to have
+                helped improve the developer experience for GraphQL developers
+                worldwide.
               </p>
             </div>
           </section>
@@ -219,22 +245,30 @@ function generateCurlCommand(request) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Technical Insights</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Technical Insights
+                  </h3>
                   <p className="text-foreground/70">
-                    Working on this feature deepened my understanding of GraphQL&apos;s request structure and how browser
-                    extensions interact with network traffic. I also gained experience with the nuances of command-line
-                    formatting and escaping across different environments.
+                    Working on this feature deepened my understanding of
+                    GraphQL&apos;s request structure and how browser extensions
+                    interact with network traffic. I also gained experience with
+                    the nuances of command-line formatting and escaping across
+                    different environments.
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Open Source Contribution</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Open Source Contribution
+                  </h3>
                   <p className="text-foreground/70">
-                    This experience reinforced the value of contributing to open source. By solving my own pain point, I
-                    was able to help thousands of other developers facing the same challenge, while also improving my
-                    own skills and visibility in the developer community.
+                    This experience reinforced the value of contributing to open
+                    source. By solving my own pain point, I was able to help
+                    thousands of other developers facing the same challenge,
+                    while also improving my own skills and visibility in the
+                    developer community.
                   </p>
                 </CardContent>
               </Card>
@@ -243,7 +277,8 @@ function generateCurlCommand(request) {
 
           <div className="mt-16 text-center">
             <p className="text-foreground/70 mb-6">
-              Interested in discussing GraphQL, developer tools, or open source contributions?
+              Interested in discussing GraphQL, developer tools, or open source
+              contributions?
             </p>
             <Button asChild>
               <Link href="/contact">Get in Touch</Link>
@@ -252,6 +287,5 @@ function generateCurlCommand(request) {
         </div>
       </div>
     </main>
-  )
+  );
 }
-

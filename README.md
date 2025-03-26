@@ -68,3 +68,4 @@ The contact form uses Resend for email delivery. To set it up:
 
 The contact form will send emails to contact@olegkuibar.dev.
 
+```

@@ -1,4 +1,4 @@
-import { TechItem } from "../types/tech-item"
+import { TechItem } from "../types/tech-item";
 
 export const TECH_ITEMS: TechItem[] = [
   // Frontend
@@ -12,19 +12,22 @@ export const TECH_ITEMS: TechItem[] = [
     name: "Angular",
     category: "frontend",
     level: "core",
-    description: "Popular JavaScript framework for building dynamic web applications",
+    description:
+      "Popular JavaScript framework for building dynamic web applications",
   },
   {
     name: "TypeScript",
     category: "frontend",
     level: "core",
-    description: "Strongly typed programming language that builds on JavaScript",
+    description:
+      "Strongly typed programming language that builds on JavaScript",
   },
   {
     name: "Next.js",
     category: "frontend",
     level: "core",
-    description: "React framework for production with hybrid rendering strategies",
+    description:
+      "React framework for production with hybrid rendering strategies",
   },
   {
     name: "Tailwind CSS",
@@ -48,7 +51,8 @@ export const TECH_ITEMS: TechItem[] = [
     name: "CodeGen",
     category: "frontend",
     level: "frequent",
-    description: "Code generation library for TypeScript with integration to GraphQL and Zod",
+    description:
+      "Code generation library for TypeScript with integration to GraphQL and Zod",
   },
   {
     name: "React Query",
@@ -68,7 +72,12 @@ export const TECH_ITEMS: TechItem[] = [
     level: "frequent",
     description: "Tool for developing UI components in isolation",
   },
-  { name: "Gatsby", category: "frontend", level: "occasional", description: "Static site generator for React" },
+  {
+    name: "Gatsby",
+    category: "frontend",
+    level: "occasional",
+    description: "Static site generator for React",
+  },
   {
     name: "Vue.js",
     category: "frontend",
@@ -91,7 +100,8 @@ export const TECH_ITEMS: TechItem[] = [
     name: "Solid.js",
     category: "frontend",
     level: "exploring",
-    description: "Declarative, efficient, and flexible JavaScript library for building UIs",
+    description:
+      "Declarative, efficient, and flexible JavaScript library for building UIs",
   },
 
   // Backend
@@ -111,9 +121,15 @@ export const TECH_ITEMS: TechItem[] = [
     name: "GraphQL",
     category: "backend",
     level: "frequent",
-    description: "Query language for APIs and runtime for executing those queries",
+    description:
+      "Query language for APIs and runtime for executing those queries",
   },
-  { name: "MongoDB", category: "backend", level: "frequent", description: "Document-oriented NoSQL database" },
+  {
+    name: "MongoDB",
+    category: "backend",
+    level: "frequent",
+    description: "Document-oriented NoSQL database",
+  },
   {
     name: "PostgreSQL",
     category: "backend",
@@ -130,7 +146,8 @@ export const TECH_ITEMS: TechItem[] = [
     name: "AWS Lambda",
     category: "backend",
     level: "occasional",
-    description: "Serverless compute service that runs code in response to events",
+    description:
+      "Serverless compute service that runs code in response to events",
   },
   {
     name: "Deno",
@@ -162,7 +179,8 @@ export const TECH_ITEMS: TechItem[] = [
     name: "Playwright",
     category: "testing",
     level: "exploring",
-    description: "Framework for reliable end-to-end testing for modern web apps",
+    description:
+      "Framework for reliable end-to-end testing for modern web apps",
   },
 
   // DevOps
@@ -176,12 +194,14 @@ export const TECH_ITEMS: TechItem[] = [
     name: "Docker",
     category: "devops",
     level: "occasional",
-    description: "Platform for developing, shipping, and running applications in containers",
+    description:
+      "Platform for developing, shipping, and running applications in containers",
   },
   {
     name: "Kubernetes",
     category: "devops",
     level: "exploring",
-    description: "Container orchestration system for automating deployment and scaling",
+    description:
+      "Container orchestration system for automating deployment and scaling",
   },
-] 
+];

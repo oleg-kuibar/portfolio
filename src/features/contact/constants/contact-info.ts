@@ -1,4 +1,4 @@
-import type { ContactInfo } from "../types/contact"
+import type { ContactInfo } from "../types/contact";
 
 export const CONTACT_INFO: ContactInfo[] = [
   {
@@ -25,7 +25,7 @@ export const CONTACT_INFO: ContactInfo[] = [
     value: "Toronto, Canada",
     link: null,
   },
-]
+];
 
 export const CONTACT_ANIMATIONS = {
   container: {
@@ -45,4 +45,4 @@ export const CONTACT_ANIMATIONS = {
       transition: { duration: 0.5 },
     },
   },
-} 
+};

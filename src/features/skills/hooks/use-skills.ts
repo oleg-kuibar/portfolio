@@ -1,10 +1,10 @@
-import { useRef } from "react"
-import { useInView } from "framer-motion"
-import { SKILLS_DATA } from "../constants/skills-data"
+import { useRef } from "react";
+import { useInView } from "framer-motion";
+import { SKILLS_DATA } from "../constants/skills-data";
 
 export const useSkills = () => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -14,7 +14,7 @@ export const useSkills = () => {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -23,7 +23,7 @@ export const useSkills = () => {
       y: 0,
       transition: { duration: 0.5 },
     },
-  }
+  };
 
   return {
     ref,
@@ -31,5 +31,5 @@ export const useSkills = () => {
     containerVariants,
     itemVariants,
     skillsData: SKILLS_DATA,
-  }
-} 
+  };
+};

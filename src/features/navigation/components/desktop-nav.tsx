@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { cn } from "@/utils/cn"
-import { scrollToElement } from "@/utils/scroll-utils"
-import { NAV_ITEMS } from "../constants/nav-items"
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { cn } from "@/utils/cn";
+import { scrollToElement } from "@/utils/scroll-utils";
+import { NAV_ITEMS } from "../constants/nav-items";
 
 interface DesktopNavProps {
-  activeSection: string
-  closeMenu: () => void
+  activeSection: string;
+  closeMenu: () => void;
 }
 
 export function DesktopNav({ activeSection, closeMenu }: DesktopNavProps) {
@@ -25,9 +25,9 @@ export function DesktopNav({ activeSection, closeMenu }: DesktopNavProps) {
               : "text-foreground/80 hover:text-primary",
           )}
           onClick={(e) => {
-            e.preventDefault()
-            scrollToElement(item.href.substring(1))
-            closeMenu()
+            e.preventDefault();
+            scrollToElement(item.href.substring(1));
+            closeMenu();
           }}
         >
           {item.name}
@@ -43,5 +43,5 @@ export function DesktopNav({ activeSection, closeMenu }: DesktopNavProps) {
         </Link>
       ))}
     </nav>
-  )
-} 
+  );
+}

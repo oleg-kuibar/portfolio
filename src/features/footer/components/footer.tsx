@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { cn } from "@/utils/cn"
-import { FaLinkedin } from "react-icons/fa"
-import { SiGithub } from "react-icons/si"
-import { useFooter } from "../hooks/use-footer"
-import { FOOTER_CONTENT } from "../constants/footer-content"
-import { MoonIcon, SunIcon } from "lucide-react"
+import { cn } from "@/utils/cn";
+import { FaLinkedin } from "react-icons/fa";
+import { SiGithub } from "react-icons/si";
+import { useFooter } from "../hooks/use-footer";
+import { FOOTER_CONTENT } from "../constants/footer-content";
+import { MoonIcon, SunIcon } from "lucide-react";
 
 export function Footer() {
-  const { currentYear, isDark, toggleTheme } = useFooter()
+  const { currentYear, isDark, toggleTheme } = useFooter();
 
   return (
     <footer className={cn("py-8", isDark ? "bg-muted/10" : "bg-muted")}>
@@ -20,7 +20,9 @@ export function Footer() {
               {FOOTER_CONTENT.name.split(" ")[1][0]}
               <span className="text-primary/70">.</span>
             </div>
-            <p className="text-sm text-foreground/70 mt-1">{FOOTER_CONTENT.role}</p>
+            <p className="text-sm text-foreground/70 mt-1">
+              {FOOTER_CONTENT.role}
+            </p>
           </div>
 
           <div className="flex items-center gap-4 mb-4 md:mb-0">
@@ -81,6 +83,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

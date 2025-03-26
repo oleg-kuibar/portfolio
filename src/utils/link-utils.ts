@@ -1,17 +1,17 @@
-import type React from "react"
+import type React from "react";
 /**
  * Checks if a URL is valid
  * @param url The URL to check
  * @returns True if the URL is valid, false otherwise
  */
 export function isValidUrl(url: string): boolean {
-  if (!url || url === "#") return false
+  if (!url || url === "#") return false;
 
   try {
-    new URL(url)
-    return true
+    new URL(url);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -27,8 +27,7 @@ export function handleLinkClick(
   fallbackMessage = "Link coming soon!",
 ): void {
   if (!isValidUrl(url)) {
-    e.preventDefault()
-    alert(fallbackMessage)
+    e.preventDefault();
+    alert(fallbackMessage);
   }
 }
-

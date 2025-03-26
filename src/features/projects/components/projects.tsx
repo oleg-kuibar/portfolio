@@ -1,22 +1,35 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ExternalLinkIcon, SearchIcon } from "lucide-react"
-import { ProjectFilter } from "./project-filter"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useTheme } from "next-themes"
-import { cn } from "@/utils/cn"
-import { handleLinkClick } from "@/utils/link-utils"
-import { useProjects } from "../hooks/use-projects"
-import { ProjectCategory } from "../types/project"
-import { FaGithub } from "react-icons/fa"
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ExternalLinkIcon, SearchIcon } from "lucide-react";
+import { ProjectFilter } from "./project-filter";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useTheme } from "next-themes";
+import { cn } from "@/utils/cn";
+import { handleLinkClick } from "@/utils/link-utils";
+import { useProjects } from "../hooks/use-projects";
+import { ProjectCategory } from "../types/project";
+import { FaGithub } from "react-icons/fa";
 
 export function Projects() {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
   const {
     ref,
     isInView,
@@ -28,21 +41,27 @@ export function Projects() {
     filteredProjects,
     containerVariants,
     itemVariants,
-  } = useProjects()
+  } = useProjects();
 
   return (
     <section id="projects" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Projects</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Featured Projects
+          </h2>
           <div className="w-20 h-1 mx-auto mb-6 bg-primary"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
-            Explore my portfolio of projects that showcase my technical skills, problem-solving abilities, and attention
-            to detail.
+            Explore my portfolio of projects that showcase my technical skills,
+            problem-solving abilities, and attention to detail.
           </p>
         </div>
 
-        <ProjectFilter categories={categories} onFilterChange={setActiveFilter} activeFilter={activeFilter} />
+        <ProjectFilter
+          categories={categories}
+          onFilterChange={setActiveFilter}
+          activeFilter={activeFilter}
+        />
 
         <div className="min-h-[800px]">
           <motion.div
@@ -66,18 +85,19 @@ export function Projects() {
                   <Card
                     className={cn(
                       "h-full overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 group",
-                      "bg-card"
+                      "bg-card",
                     )}
                   >
                     <div className="relative h-48 w-full overflow-hidden">
-                      {project.image && !project.image.includes("placeholder.svg") ? (
+                      {project.image &&
+                      !project.image.includes("placeholder.svg") ? (
                         <Image
                           src={project.image}
                           alt={project.title}
                           fill
                           className={cn(
                             "object-cover transition-transform duration-500 group-hover:scale-105",
-                            "dark:brightness-90"
+                            "dark:brightness-90",
                           )}
                         />
                       ) : (
@@ -96,24 +116,28 @@ export function Projects() {
                           </Badge>
                         )}
                         {project.poc && (
-                          <Badge variant="default" className="bg-orange-500 text-white dark:bg-orange-400">
+                          <Badge
+                            variant="default"
+                            className="bg-orange-500 text-white dark:bg-orange-400"
+                          >
                             POC
                           </Badge>
                         )}
                       </div>
-                      {project.image && !project.image.includes("placeholder.svg") && (
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-white border-white hover:bg-white/20 hover:text-white transition-colors"
-                            onClick={() => setSelectedProject(project)}
-                          >
-                            <SearchIcon className="mr-2 h-4 w-4" />
-                            View Details
-                          </Button>
-                        </div>
-                      )}
+                      {project.image &&
+                        !project.image.includes("placeholder.svg") && (
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-white border-white hover:bg-white/20 hover:text-white transition-colors"
+                              onClick={() => setSelectedProject(project)}
+                            >
+                              <SearchIcon className="mr-2 h-4 w-4" />
+                              View Details
+                            </Button>
+                          </div>
+                        )}
                     </div>
                     <CardHeader>
                       <div className="flex justify-between items-start">
@@ -129,34 +153,43 @@ export function Projects() {
                             {tag}
                           </Badge>
                         ))}
-                        {project.tags.length > 3 && <Badge variant="secondary">+{project.tags.length - 3}</Badge>}
+                        {project.tags.length > 3 && (
+                          <Badge variant="secondary">
+                            +{project.tags.length - 3}
+                          </Badge>
+                        )}
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                      >
+                      <Button variant="outline" size="sm" asChild>
                         <a
                           href={project.githubUrl || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => handleLinkClick(project.githubUrl, e, "GitHub repository coming soon!")}
+                          onClick={(e) =>
+                            handleLinkClick(
+                              project.githubUrl,
+                              e,
+                              "GitHub repository coming soon!",
+                            )
+                          }
                         >
                           <FaGithub className="mr-2 h-4 w-4" />
                           Code
                         </a>
                       </Button>
-                      <Button 
-                        size="sm" 
-                        asChild
-                      >
+                      <Button size="sm" asChild>
                         <a
                           href={project.demoUrl || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => handleLinkClick(project.demoUrl, e, "Live demo coming soon!")}
+                          onClick={(e) =>
+                            handleLinkClick(
+                              project.demoUrl,
+                              e,
+                              "Live demo coming soon!",
+                            )
+                          }
                         >
                           <ExternalLinkIcon className="mr-2 h-4 w-4" />
                           Live Demo
@@ -181,14 +214,22 @@ export function Projects() {
         </div>
 
         {/* Project Details Dialog */}
-        <Dialog open={!!selectedProject} onOpenChange={(open) => !open && setSelectedProject(null)}>
+        <Dialog
+          open={!!selectedProject}
+          onOpenChange={(open) => !open && setSelectedProject(null)}
+        >
           <DialogContent
-            className={cn("max-w-3xl max-h-[90vh] overflow-y-auto", theme === "dark" && "bg-card/95 backdrop-blur-sm")}
+            className={cn(
+              "max-w-3xl max-h-[90vh] overflow-y-auto",
+              theme === "dark" && "bg-card/95 backdrop-blur-sm",
+            )}
           >
             {selectedProject && (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-2xl">{selectedProject.title}</DialogTitle>
+                  <DialogTitle className="text-2xl">
+                    {selectedProject.title}
+                  </DialogTitle>
                   <DialogDescription>
                     <Badge variant="outline" className="mt-2">
                       {selectedProject.category}
@@ -200,7 +241,10 @@ export function Projects() {
                     src={selectedProject.image || "/placeholder.svg"}
                     alt={selectedProject.title}
                     fill
-                    className={cn("object-cover", theme === "dark" && "dark-image-filter")}
+                    className={cn(
+                      "object-cover",
+                      theme === "dark" && "dark-image-filter",
+                    )}
                   />
                 </div>
                 <div className="space-y-4">
@@ -209,65 +253,90 @@ export function Projects() {
                   {selectedProject.details && (
                     <>
                       <div>
-                        <h3 className="text-lg font-semibold mb-2">Challenge</h3>
-                        <p className="text-foreground/80">{selectedProject.details.challenge}</p>
+                        <h3 className="text-lg font-semibold mb-2">
+                          Challenge
+                        </h3>
+                        <p className="text-foreground/80">
+                          {selectedProject.details.challenge}
+                        </p>
                       </div>
 
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Solution</h3>
-                        <p className="text-foreground/80">{selectedProject.details.solution}</p>
+                        <p className="text-foreground/80">
+                          {selectedProject.details.solution}
+                        </p>
                       </div>
 
                       {selectedProject.details.architecture && (
                         <div>
-                          <h3 className="text-lg font-semibold mb-2">Architecture</h3>
-                          <p className="text-foreground/80">{selectedProject.details.architecture}</p>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Architecture
+                          </h3>
+                          <p className="text-foreground/80">
+                            {selectedProject.details.architecture}
+                          </p>
                         </div>
                       )}
 
                       {selectedProject.details.results && (
                         <div>
-                          <h3 className="text-lg font-semibold mb-2">Results</h3>
-                          <p className="text-foreground/80">{selectedProject.details.results}</p>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Results
+                          </h3>
+                          <p className="text-foreground/80">
+                            {selectedProject.details.results}
+                          </p>
                         </div>
                       )}
 
                       <div>
-                        <h3 className="text-lg font-semibold mb-2">Technologies</h3>
+                        <h3 className="text-lg font-semibold mb-2">
+                          Technologies
+                        </h3>
                         <div className="flex flex-wrap gap-2">
-                          {selectedProject.details.technologies.map((tech, index) => (
-                            <Badge key={index} variant="secondary">
-                              {tech}
-                            </Badge>
-                          ))}
+                          {selectedProject.details.technologies.map(
+                            (tech, index) => (
+                              <Badge key={index} variant="secondary">
+                                {tech}
+                              </Badge>
+                            ),
+                          )}
                         </div>
                       </div>
                     </>
                   )}
 
                   <div className="flex justify-between pt-4">
-                    <Button
-                      variant="outline"
-                      asChild
-                    >
+                    <Button variant="outline" asChild>
                       <a
                         href={selectedProject.githubUrl || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => handleLinkClick(selectedProject.githubUrl, e, "GitHub repository coming soon!")}
+                        onClick={(e) =>
+                          handleLinkClick(
+                            selectedProject.githubUrl,
+                            e,
+                            "GitHub repository coming soon!",
+                          )
+                        }
                       >
                         <FaGithub className="mr-2 h-4 w-4" />
                         View Code
                       </a>
                     </Button>
-                    <Button 
-                      asChild
-                    >
+                    <Button asChild>
                       <a
                         href={selectedProject.demoUrl || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => handleLinkClick(selectedProject.demoUrl, e, "Live demo coming soon!")}
+                        onClick={(e) =>
+                          handleLinkClick(
+                            selectedProject.demoUrl,
+                            e,
+                            "Live demo coming soon!",
+                          )
+                        }
                       >
                         <ExternalLinkIcon className="mr-2 h-4 w-4" />
                         Live Demo
@@ -281,6 +350,5 @@ export function Projects() {
         </Dialog>
       </div>
     </section>
-  )
+  );
 }
-

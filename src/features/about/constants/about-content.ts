@@ -1,4 +1,8 @@
-import type { AboutCard, AboutContent, AboutAnimationVariants } from "../types/about"
+import type {
+  AboutCard,
+  AboutContent,
+  AboutAnimationVariants,
+} from "../types/about";
 
 export const ABOUT_CARDS: AboutCard[] = [
   {
@@ -19,11 +23,12 @@ export const ABOUT_CARDS: AboutCard[] = [
     description:
       "I mentor engineers, drive technical decisions, and bridge the gap between business goals and technical implementation.",
   },
-]
+];
 
 export const ABOUT_CONTENT: AboutContent = {
   title: "About Me",
-  subtitle: "As a Staff Frontend Engineer with 8+ years of experience, I bridge technical excellence, architectural innovation, and team leadership to craft scalable, maintainable, and user-focused systems.",
+  subtitle:
+    "As a Staff Frontend Engineer with 8+ years of experience, I bridge technical excellence, architectural innovation, and team leadership to craft scalable, maintainable, and user-focused systems.",
   journey: {
     title: "My Journey",
     paragraphs: [
@@ -31,11 +36,11 @@ export const ABOUT_CONTENT: AboutContent = {
       "My work extends beyond code—I shape systems, mentor teams, and drive strategic outcomes. This portfolio showcases flagship projects, alongside thought leadership via blog posts. It's a living artifact of my experience in frontend engineering, highlighting my ability to lead complex initiatives, optimize critical paths, and deliver measurable business value.",
     ],
   },
-}
+};
 
 export const ABOUT_ANIMATIONS: {
-  container: AboutAnimationVariants
-  item: AboutAnimationVariants
+  container: AboutAnimationVariants;
+  item: AboutAnimationVariants;
 } = {
   container: {
     hidden: { opacity: 0 },
@@ -54,4 +59,4 @@ export const ABOUT_ANIMATIONS: {
       transition: { duration: 0.5 },
     },
   },
-} 
+};
