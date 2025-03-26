@@ -41,7 +41,7 @@ export function Projects() {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
 
-  const projects: Project[] = [
+  const projects = useMemo<Project[]>(() => [
     {
       id: "tasksync",
       title: "TaskSync",
@@ -189,7 +189,7 @@ export function Projects() {
         results: "Reduced time to insight by 60% compared to previous reporting methods.",
       },
     },
-  ]
+  ], []) // Empty dependency array since projects are static
 
   // Extract unique categories
   const categories = useMemo(() => {

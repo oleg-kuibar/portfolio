@@ -90,13 +90,13 @@ export function About() {
           <div className="max-w-3xl mx-auto">
             <h3 className="text-2xl font-semibold mb-4">My Journey</h3>
             <p className="text-foreground/70 mb-4">
-              I'm a Frontend Enthusiast from Toronto. While I primarily focus on frontend technologies, I have a
+              I&apos;m a Frontend Enthusiast from Toronto. While I primarily focus on frontend technologies, I have a
               boundless passion for exploring and discovering new technologies. I believe in lifelong learning and
               always strive to expand my horizons as a software engineer.
             </p>
             <p className="text-foreground/70">
               My work extends beyond code—I shape systems, mentor teams, and drive strategic outcomes. This portfolio
-              showcases flagship projects, alongside thought leadership via blog posts. It's a living artifact of my
+              showcases flagship projects, alongside thought leadership via blog posts. It&apos;s a living artifact of my
               experience in frontend engineering, highlighting my ability to lead complex initiatives, optimize critical
               paths, and deliver measurable business value.
             </p>

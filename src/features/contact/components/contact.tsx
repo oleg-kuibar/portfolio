@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { GithubIcon, LinkedinIcon, MailIcon, MapPinIcon } from "lucide-react"
+import { MailIcon, MapPinIcon } from "lucide-react"
+import { FaLinkedin } from "react-icons/fa"
+import { SiGithub } from "react-icons/si"
 import { useTheme } from "@/lib/providers/theme-provider"
 import { cn } from "@/utils/cn"
 import { useState } from "react"
@@ -69,9 +71,9 @@ export function Contact() {
       setTimeout(() => {
         setSubmitSuccess(false)
       }, 5000)
-    } catch (error) {
+    } catch {
       setIsSubmitting(false)
-      alert("There was an error sending your message. Please try again later.")
+      alert("Failed to send message. Please try again later.")
     }
   }
 
@@ -102,13 +104,13 @@ export function Contact() {
       link: "mailto:kuibar.oleg@gmail.com",
     },
     {
-      icon: <LinkedinIcon className={cn("h-5 w-5", isDark ? "text-primary/80" : "text-primary")} />,
+      icon: <FaLinkedin className={cn("h-5 w-5", isDark ? "text-primary/80" : "text-primary")} />,
       title: "LinkedIn",
       value: "linkedin.com/in/olegkuibar",
       link: "https://linkedin.com/in/olegkuibar",
     },
     {
-      icon: <GithubIcon className={cn("h-5 w-5", isDark ? "text-primary/80" : "text-primary")} />,
+      icon: <SiGithub className={cn("h-5 w-5", isDark ? "text-primary/80" : "text-primary")} />,
       title: "GitHub",
       value: "github.com/oleg-kuibar",
       link: "https://github.com/oleg-kuibar",
@@ -179,7 +181,7 @@ export function Contact() {
             <Card className={cn("border-none shadow-md", isDark && "bg-card/80 backdrop-blur-sm")}>
               <CardHeader>
                 <CardTitle>Send Me a Message</CardTitle>
-                <CardDescription>I'll get back to you as soon as possible</CardDescription>
+                <CardDescription>I&apos;ll get back to you as soon as possible</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">

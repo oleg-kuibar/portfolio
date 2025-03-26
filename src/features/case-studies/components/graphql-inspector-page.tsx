@@ -106,7 +106,7 @@ export function GraphQLInspectorPage() {
             <h2 className="text-2xl font-bold mb-6">My Contribution</h2>
             <div className="prose dark:prose-invert max-w-none">
               <p>
-                I decided to contribute to this open-source project by implementing a "Copy as cURL" feature. This would
+                I decided to contribute to this open-source project by implementing a &quot;Copy as cURL&quot; feature. This would
                 allow developers to:
               </p>
 
@@ -178,7 +178,7 @@ function generateCurlCommand(request) {
             <h2 className="text-2xl font-bold mb-6">Impact and Results</h2>
             <div className="prose dark:prose-invert max-w-none">
               <p>
-                The "Copy as cURL" feature has been well-received by the community and is now a standard part of the
+                The &quot;Copy as cURL&quot; feature has been well-received by the community and is now a standard part of the
                 GraphQL Network Inspector extension. It has:
               </p>
 
@@ -208,8 +208,7 @@ function generateCurlCommand(request) {
               </ul>
 
               <p>
-                The extension now has over 5,000 active users with an average rating of 4.8/5 in the Chrome Web Store,
-                and my contribution has helped make it an even more valuable tool for GraphQL developers.
+                I&apos;m proud to have contributed to this project and to have helped improve the developer experience for GraphQL developers worldwide.
               </p>
             </div>
           </section>
@@ -221,7 +220,7 @@ function generateCurlCommand(request) {
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold mb-2">Technical Insights</h3>
                   <p className="text-foreground/70">
-                    Working on this feature deepened my understanding of GraphQL's request structure and how browser
+                    Working on this feature deepened my understanding of GraphQL&apos;s request structure and how browser
                     extensions interact with network traffic. I also gained experience with the nuances of command-line
                     formatting and escaping across different environments.
                   </p>

@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next/dist/lib/metadata/types/metadata-interface"
+import type { Metadata, Viewport } from "next/dist/lib/metadata/types/metadata-interface"
 import { Inter, Poppins } from "next/font/google"
 import { ThemeProvider } from "@/lib/providers/theme-provider"
 import "./globals.css"
@@ -14,6 +14,13 @@ const poppins = Poppins({
   subsets: ["latin"],
   variable: "--font-poppins",
 })
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
+}
 
 export const metadata: Metadata = {
   title: "Oleg Kuibar | Staff Frontend Engineer",
@@ -30,10 +37,6 @@ export const metadata: Metadata = {
       "Portfolio of Oleg Kuibar, a Staff Frontend Engineer specializing in React, TypeScript, and modern frontend architecture.",
     siteName: "Oleg Kuibar Portfolio",
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

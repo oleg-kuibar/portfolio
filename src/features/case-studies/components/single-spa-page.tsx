@@ -73,7 +73,7 @@ export function SingleSpaPage() {
               <p>
                 My journey with micro-frontends began when I was tasked with solving a critical challenge: how to enable
                 multiple teams to work independently on different parts of our ad tech platform without stepping on each
-                other's toes.
+                other&apos;s toes.
               </p>
 
               <p>
@@ -213,7 +213,7 @@ export function SingleSpaPage() {
                   <strong>Improved Scalability:</strong> Both in terms of codebase and team organization
                 </li>
                 <li>
-                  <strong>Enhanced Resilience:</strong> Issues in one micro-frontend didn't affect others
+                  <strong>Enhanced Resilience:</strong> Issues in one micro-frontend didn&apos;t affect others
                 </li>
                 <li>
                   <strong>Flexible Technology Choices:</strong> Teams could select the best tools for their specific
@@ -224,7 +224,7 @@ export function SingleSpaPage() {
                 </li>
               </ul>
 
-              <p>However, the journey wasn't without challenges:</p>
+              <p>However, the journey wasn&apos;t without challenges:</p>
 
               <ul>
                 <li>
@@ -259,7 +259,7 @@ export function SingleSpaPage() {
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold mb-2">When to Use Micro-frontends</h3>
                   <p className="text-foreground/70">
-                    Micro-frontends shine in large applications with multiple teams working in parallel. They're
+                    Micro-frontends shine in large applications with multiple teams working in parallel. They&apos;re
                     particularly valuable when you need to integrate different frameworks or gradually modernize legacy
                     applications.
                   </p>

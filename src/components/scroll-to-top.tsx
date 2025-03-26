@@ -17,19 +17,19 @@ export function ScrollToTop() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // When the sentinel element is not visible (scrolled past), show the button
-        setIsVisible(!entry.isIntersecting)
+        setIsVisible(entry.isIntersecting)
       },
-      { threshold: 0 },
+      { threshold: 0.1 }
     )
 
-    if (observerRef.current) {
-      observer.observe(observerRef.current)
+    const currentRef = observerRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
     }
 
     return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current)
+      if (currentRef) {
+        observer.unobserve(currentRef)
       }
     }
   }, [])

@@ -26,9 +26,13 @@ export function scrollToElement(elementId: string, offset = 80): void {
  * Smoothly scrolls to the top of the page
  */
 export function scrollToTop(): void {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  })
+  try {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  } catch {
+    window.scrollTo(0, 0)
+  }
 }
 

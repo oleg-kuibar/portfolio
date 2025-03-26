@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useRef, useEffect, useState, useCallback } from "react"
+import { useRef, useEffect, useState, useCallback, useMemo } from "react"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,7 +26,7 @@ export function TechRadar() {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
 
-  const techItems: TechItem[] = [
+  const techItems = useMemo<TechItem[]>(() => [
     // Frontend
     {
       name: "React",
@@ -101,7 +101,7 @@ export function TechRadar() {
       name: "Node.js",
       category: "backend",
       level: "core",
-      description: "JavaScript runtime built on Chrome's V8 JavaScript engine",
+      description: "JavaScript runtime built on Chrome&apos;s V8 JavaScript engine",
     },
     {
       name: "Express",
@@ -186,24 +186,24 @@ export function TechRadar() {
       level: "exploring",
       description: "Container orchestration system for automating deployment and scaling",
     },
-  ]
+  ], [])
 
   const filteredTechItems =
     activeCategory === "all" ? techItems : techItems.filter((item) => item.category === activeCategory)
 
-  const levelRadius = {
+  const levelRadius = useMemo(() => ({
     core: 0.25,
     frequent: 0.5,
     occasional: 0.75,
     exploring: 0.95,
-  }
+  }), [])
 
-  const levelColors = {
+  const levelColors = useMemo(() => ({
     core: "#3b82f6",
     frequent: "#10b981",
     occasional: "#f59e0b",
     exploring: "#ef4444",
-  }
+  }), [])
 
   // Store tech item positions for interaction
   const techItemPositions = useRef<{ [key: string]: { x: number; y: number; radius: number } }>({})
@@ -333,7 +333,7 @@ export function TechRadar() {
       ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.8)"
       ctx.fillText(item.name, labelX, labelY)
     })
-  }, [filteredTechItems, hoveredTech, hoveredLegendItem, isDark])
+  }, [filteredTechItems, hoveredLegendItem, hoveredTech?.name, isDark, levelColors, levelRadius])
 
   // Handle canvas mouse interactions
   const handleCanvasMouseMove = useCallback(
@@ -361,9 +361,10 @@ export function TechRadar() {
     [techItems],
   )
 
-  const handleCanvasMouseLeave = useCallback(() => {
+  const handleMouseLeave = () => {
     setHoveredTech(null)
-  }, [])
+    setHoveredLegendItem(null)
+  }
 
   // Handle legend item hover
   const handleLegendItemHover = useCallback((level: string | null) => {
@@ -399,7 +400,7 @@ export function TechRadar() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Tech Radar</h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
-            A visual representation of my technology experience and interests, from core expertise to technologies I'm
+            A visual representation of my technology experience and interests, from core expertise to technologies I&apos;m
             exploring.
           </p>
         </div>
@@ -428,7 +429,7 @@ export function TechRadar() {
                       ref={canvasRef}
                       className="max-w-full touch-none"
                       onMouseMove={handleCanvasMouseMove}
-                      onMouseLeave={handleCanvasMouseLeave}
+                      onMouseLeave={handleMouseLeave}
                       aria-label="Tech radar visualization"
                     />
                   </div>
@@ -438,7 +439,7 @@ export function TechRadar() {
                       <h3 className="text-xl font-semibold">Legend</h3>
 
                       <div className="space-y-3">
-                        {Object.entries(levelRadius).map(([level, _]) => (
+                        {Object.entries(levelRadius).map(([level]) => (
                           <div
                             key={level}
                             className={cn(
