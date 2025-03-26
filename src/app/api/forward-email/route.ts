@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // Handle webhook payload
-    if (body.type === "email.delivered") {
+    if (body.type === "email.sent") {
       // Verify webhook signature
       if (!signature) {
         return NextResponse.json(
