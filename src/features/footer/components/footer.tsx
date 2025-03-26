@@ -1,11 +1,11 @@
 "use client"
 
 import { cn } from "@/utils/cn"
-import { ThemeToggle } from "@/features/theme/components/theme-toggle"
 import { FaLinkedin } from "react-icons/fa"
 import { SiGithub } from "react-icons/si"
 import { useFooter } from "../hooks/use-footer"
 import { FOOTER_CONTENT } from "../constants/footer-content"
+import { MoonIcon, SunIcon } from "lucide-react"
 
 export function Footer() {
   const { currentYear, isDark, toggleTheme } = useFooter()
@@ -24,7 +24,6 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-4 mb-4 md:mb-0">
-            <ThemeToggle />
             {FOOTER_CONTENT.socialLinks.map((link) => (
               <a
                 key={link.name}
@@ -64,10 +63,19 @@ export function Footer() {
             Prefer {isDark ? "light" : "dark"} mode?{" "}
             <button
               onClick={toggleTheme}
-              className="text-primary hover:underline ml-1"
-              aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
+              className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
             >
-              Switch theme
+              {isDark ? (
+                <>
+                  <SunIcon className="mr-2 h-4 w-4" />
+                  Switch to light mode
+                </>
+              ) : (
+                <>
+                  <MoonIcon className="mr-2 h-4 w-4" />
+                  Switch to dark mode
+                </>
+              )}
             </button>
           </p>
         </div>

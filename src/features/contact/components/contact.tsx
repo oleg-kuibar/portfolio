@@ -11,13 +11,13 @@ export function Contact() {
   const { ref, isInView, isDark, formState, handleChange, handleSubmit } = useContactForm()
 
   return (
-    <section id="contact" className={cn("py-20", isDark ? "bg-muted/10" : "bg-muted/30")}>
+    <section id="contact" className="py-20 bg-muted/10">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
-          <div className={cn("w-20 h-1 mx-auto mb-6", isDark ? "bg-primary/80" : "bg-primary")}></div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Get in Touch</h2>
+          <div className="w-20 h-1 mx-auto mb-6 bg-primary/80"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
-            Have a project in mind or want to discuss potential opportunities? Feel free to reach out!
+            Have a question or want to work together? I'd love to hear from you.
           </p>
         </div>
 
