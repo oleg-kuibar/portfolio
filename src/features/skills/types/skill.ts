@@ -3,9 +3,40 @@ export interface Skill {
   level: number
 }
 
-export type SkillCategory = "frontend" | "backend" | "other"
-
-export interface SkillCategoryData {
+export interface SkillCategory {
   name: string
-  skills: Skill[]
+  description: string
+  skills: SkillDetails[]
+}
+
+export type ExperienceLevel = "Expert" | "Advanced" | "Intermediate"
+
+export interface SkillDetails {
+  name: string
+  icon: string
+  experienceLevel: ExperienceLevel
+  yearsOfExperience: number
+  projects: number
+  certifications: string[]
+  notableAchievements: string[]
+}
+
+export interface SkillAnimationVariants {
+  container: {
+    hidden: { opacity: 0 }
+    visible: {
+      opacity: 1
+      transition: {
+        staggerChildren: number
+      }
+    }
+  }
+  item: {
+    hidden: { opacity: 0; y: number }
+    visible: {
+      opacity: 1
+      y: 0
+      transition: { duration: number }
+    }
+  }
 } 
