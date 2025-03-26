@@ -56,8 +56,17 @@ export function useContactForm() {
     setFormState((prev) => ({ ...prev, isSubmitting: true }))
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formState.data),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
 
       setFormState({
         data: initialFormData,
