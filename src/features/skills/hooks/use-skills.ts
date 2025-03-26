@@ -1,7 +1,6 @@
 import { useRef } from "react"
 import { useInView } from "framer-motion"
 import { SKILLS_DATA } from "../constants/skills-data"
-import type { SkillCategory } from "../types/skill"
 
 export const useSkills = () => {
   const ref = useRef(null)

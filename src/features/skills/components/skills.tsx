@@ -144,7 +144,7 @@ export function Skills() {
           <div className="text-center space-y-3">
             <h2 className="text-3xl font-bold tracking-tight">Technical Skills</h2>
             <p className="text-muted-foreground text-sm max-w-2xl mx-auto">
-              Technologies and tools I've worked with. Hover over each skill to see more details.
+              Technologies and tools I&apos;ve worked with. Hover over each skill to see more details.
             </p>
           </div>
 

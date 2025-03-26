@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useMobile } from "@/hooks/use-mobile"
 import { NAV_ITEMS } from "../constants/nav-items"
-import type { NavState } from "../types/nav"
 
 export const useNav = () => {
   const [isOpen, setIsOpen] = useState(false)

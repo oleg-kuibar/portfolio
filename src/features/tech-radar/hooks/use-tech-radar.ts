@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from "react"
 import { TechItem, TechItemPosition } from "../types/tech-item"
 import { TECH_ITEMS } from "../constants/tech-items"
-import { LEVEL_COLORS, LEVEL_RADIUS } from "../constants/radar-config"
 
 export const useTechRadar = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)

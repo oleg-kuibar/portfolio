@@ -2,7 +2,6 @@ import { TechItem, TechItemPosition } from "../types/tech-item"
 import { LEVEL_COLORS, LEVEL_RADIUS } from "../constants/radar-config"
 
 interface DrawRadarParams {
-  canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   size: number
   centerX: number
@@ -16,7 +15,6 @@ interface DrawRadarParams {
 }
 
 export const drawRadar = ({
-  canvas,
   ctx,
   size,
   centerX,

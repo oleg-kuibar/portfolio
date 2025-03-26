@@ -6,7 +6,6 @@ import { MailIcon, MapPinIcon } from "lucide-react"
 import { FaLinkedin } from "react-icons/fa"
 import { SiGithub } from "react-icons/si"
 import { CONTACT_INFO } from "../constants/contact-info"
-import { motion } from "framer-motion"
 
 interface ContactInfoCardProps {
   isDark: boolean

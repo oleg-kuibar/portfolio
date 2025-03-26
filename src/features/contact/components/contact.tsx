@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { cn } from "@/utils/cn"
 import { CONTACT_ANIMATIONS } from "../constants/contact-info"
 import { useContactForm } from "../hooks/use-contact-form"
 import { ContactInfoCard } from "./contact-info-card"
@@ -17,7 +16,7 @@ export function Contact() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Get in Touch</h2>
           <div className="w-20 h-1 mx-auto mb-6 bg-primary/80"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
-            Have a question or want to work together? I'd love to hear from you.
+            Have a question or want to work together? I&apos;d love to hear from you.
           </p>
         </div>
 

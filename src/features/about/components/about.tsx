@@ -15,7 +15,7 @@ export function About() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">About Me</h2>
           <div className="w-20 h-1 mx-auto mb-6 bg-primary/80"></div>
           <p className="text-lg text-foreground/70 max-w-3xl mx-auto">
-            I'm a passionate software engineer with expertise in building scalable web applications and micro-frontend architectures.
+            I&apos;m a passionate software engineer with expertise in building scalable web applications and micro-frontend architectures.
           </p>
         </div>
 
