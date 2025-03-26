@@ -14,7 +14,7 @@ function verifyWebhookSignature(
     const hmac = crypto.createHmac("sha256", webhookSecret);
     const calculatedSignature = hmac.update(payload).digest("hex");
     return signature === calculatedSignature;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -104,7 +104,7 @@ ${body.text}
     }
 
     return NextResponse.json({ success: true, data });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
