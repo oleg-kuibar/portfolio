@@ -3,7 +3,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeftIcon, GithubIcon, ExternalLinkIcon } from "lucide-react"
+import { ArrowLeftIcon, ExternalLinkIcon } from "lucide-react"
+import { FaGithub } from "react-icons/fa"
 
 export function GraphQLInspectorPage() {
   return (
@@ -42,7 +43,7 @@ export function GraphQLInspectorPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center"
                   >
-                    <GithubIcon className="mr-2 h-4 w-4" />
+                    <FaGithub className="mr-2 h-4 w-4" />
                     View Repository
                   </a>
                 </Button>

@@ -256,7 +256,7 @@ export function Projects() {
                         rel="noopener noreferrer"
                         onClick={(e) => handleLinkClick(selectedProject.githubUrl, e, "GitHub repository coming soon!")}
                       >
-                        <GithubIcon className="mr-2 h-4 w-4" />
+                        <FaGithub className="mr-2 h-4 w-4" />
                         View Code
                       </a>
                     </Button>
