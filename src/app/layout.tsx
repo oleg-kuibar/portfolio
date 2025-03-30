@@ -6,6 +6,8 @@ import type {
 import { Inter, Poppins } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react"
+
 import "./globals.css";
 
 const inter = Inter({
@@ -63,6 +65,7 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
