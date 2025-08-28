@@ -1,7 +1,7 @@
 import { NavItem } from "../types/nav";
 
 // Define which nav items to show
-export const SHOW_BLOG = false;
+export const SHOW_BLOG = true;
 
 export const NAV_ITEMS: NavItem[] = [
   { name: "About", href: "#about" },
