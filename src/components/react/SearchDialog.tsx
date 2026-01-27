@@ -113,15 +113,26 @@ export function SearchDialog({ posts }: SearchDialogProps) {
             </div>
 
             {/* Results */}
-            <div className="max-h-[300px] overflow-y-auto p-2">
+            <div className={cn(
+              "overflow-y-auto",
+              query.trim() !== '' && filteredPosts.length === 0 ? "" : "max-h-[300px] p-2"
+            )}>
               {query.trim() === '' ? (
                 <p className="px-4 py-8 text-center text-sm text-muted-foreground">
                   Start typing to search...
                 </p>
               ) : filteredPosts.length === 0 ? (
-                <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-                  No posts found for "{query}"
-                </p>
+                <div
+                  className="relative aspect-[3/2] bg-cover bg-center bg-no-repeat dark:invert"
+                  style={{ backgroundImage: 'url(/no-posts.png)' }}
+                >
+                  <p
+                    className="absolute right-[12%] bottom-[22%] text-xl font-medium text-accent dark:invert rotate-[-5deg] max-w-[8ch] truncate"
+                    style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive" }}
+                  >
+                    {query}
+                  </p>
+                </div>
               ) : (
                 <ul className="space-y-1">
                   {filteredPosts.map((post) => (
