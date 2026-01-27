@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import AboutIllustrated from '@/components/astro/AboutIllustrated.astro';
 import { Code, Rocket, Users } from 'lucide-react';
 
 const heroContent = {
@@ -101,7 +102,7 @@ const aboutCards = [
           <div class="relative w-64 h-64 md:w-80 md:h-80">
             <div class="absolute inset-0 rounded-full border-3 border-primary/30 retro-shadow-lg"></div>
             <img
-              src="/avatar.png"
+              src="https://github.com/oleg-kuibar.png"
               alt="Oleg Kuibar's profile picture"
               class="rounded-full object-cover w-full h-full"
             />
@@ -135,7 +136,10 @@ const aboutCards = [
     </div>
   </section>
 
-  <!-- About Section -->
+  <!-- Illustrated About Section -->
+  <AboutIllustrated />
+
+  {/* Original About Section (commented out)
   <section id="about" class="py-20 bg-muted/30">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
@@ -146,7 +150,6 @@ const aboutCards = [
           {aboutContent.subtitle}
         </p>
 
-        <!-- Cards -->
         <div class="grid md:grid-cols-3 gap-6 mb-16">
           {aboutCards.map((card) => (
             <div class="retro-card text-center">
@@ -180,7 +183,6 @@ const aboutCards = [
           ))}
         </div>
 
-        <!-- Journey -->
         <div class="retro-card">
           <h3 class="font-heading text-2xl font-semibold mb-4">
             {aboutContent.journey.title}
@@ -193,4 +195,5 @@ const aboutCards = [
       </div>
     </div>
   </section>
+  */}
 </BaseLayout>

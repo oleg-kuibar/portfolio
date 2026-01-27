@@ -79,7 +79,14 @@ const postsData = posts.map((post) => ({
         </div>
       ) : (
         <div class="retro-card text-center py-12">
-          <p class="text-muted-foreground">No posts yet. Check back soon!</p>
+          <div class="inline-block p-4 bg-background border-4 border-border shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] rotate-[-2deg] hover:rotate-0 transition-transform">
+            <img
+              src="/no-posts.png"
+              alt="These aren't the posts you're looking for"
+              class="max-w-[280px] md:max-w-[400px] opacity-90 dark:invert"
+            />
+          </div>
+          <p class="text-muted-foreground/70 text-sm mt-6">Check back soon!</p>
         </div>
       )}
     </section>
