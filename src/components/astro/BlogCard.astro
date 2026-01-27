@@ -23,7 +23,7 @@ const { title, description, date, slug, category, tags, featured = false, readin
 ]}>
   <a href={`/blog/${slug}`} class="block">
     <div class="flex flex-wrap items-center gap-2 mb-3">
-      <CategoryBadge category={category} />
+      <CategoryBadge category={category} showLink={false} />
       {featured && (
         <span class="text-xs font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">
           Featured
@@ -55,7 +55,7 @@ const { title, description, date, slug, category, tags, featured = false, readin
 
     {tags.length > 0 && (
       <div class="mt-4 pt-4 border-t border-border">
-        <TagList tags={tags.slice(0, 3)} size="sm" />
+        <TagList tags={tags.slice(0, 3)} size="sm" showLinks={false} />
       </div>
     )}
   </a>
