@@ -1,0 +1,190 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Code, Rocket, Users } from 'lucide-react';
+
+const heroContent = {
+  title: "Hi, I'm",
+  name: 'Oleg Kuibar',
+  role: 'Staff Software Engineer',
+  description:
+    'I bridge technical excellence, architectural innovation, and team leadership to craft scalable, maintainable, and user-focused systems.',
+  socialLinks: {
+    linkedin: 'https://linkedin.com/in/olegkuibar',
+    github: 'https://github.com/oleg-kuibar',
+  },
+};
+
+const aboutContent = {
+  title: 'About Me',
+  subtitle:
+    'As a Staff Frontend Engineer with 8+ years of experience, I bridge technical excellence, architectural innovation, and team leadership to craft scalable, maintainable, and user-focused systems.',
+  journey: {
+    title: 'My Journey',
+    paragraphs: [
+      "I'm a Frontend Enthusiast from Toronto. While I primarily focus on frontend technologies, I have a boundless passion for exploring and discovering new technologies. I believe in lifelong learning and always strive to expand my horizons as a software engineer.",
+      "My work extends beyond code—I shape systems, mentor teams, and drive strategic outcomes. This portfolio showcases flagship projects, alongside thought leadership via blog posts. It's a living artifact of my experience in frontend engineering, highlighting my ability to lead complex initiatives, optimize critical paths, and deliver measurable business value.",
+    ],
+  },
+};
+
+const aboutCards = [
+  {
+    icon: 'code',
+    title: 'Technical Excellence',
+    description:
+      'I specialize in building high-performance, scalable frontend systems with React, TypeScript, and Next.js.',
+  },
+  {
+    icon: 'rocket',
+    title: 'Architectural Innovation',
+    description:
+      'I design modular, maintainable architectures that scale with complexity and enable teams to work efficiently.',
+  },
+  {
+    icon: 'users',
+    title: 'Team Leadership',
+    description:
+      'I mentor engineers, drive technical decisions, and bridge the gap between business goals and technical implementation.',
+  },
+];
+---
+
+<BaseLayout
+  title="Oleg Kuibar | Staff Frontend Engineer"
+  description="Portfolio of Oleg Kuibar, a Staff Frontend Engineer specializing in React, TypeScript, and modern frontend architecture."
+>
+  <!-- Hero Section -->
+  <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+    <div class="container mx-auto px-4 py-20">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+        <!-- Text Content -->
+        <div class="flex-1 text-center md:text-left">
+          <h1 class="text-4xl md:text-6xl font-bold mb-6 font-heading">
+            {heroContent.title}{' '}
+            <span class="text-primary">{heroContent.name}</span>
+          </h1>
+          <h2 class="text-xl md:text-2xl text-muted-foreground mb-4">
+            {heroContent.role}
+          </h2>
+          <p class="text-lg text-muted-foreground mb-8 max-w-2xl">
+            {heroContent.description}
+          </p>
+          <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+            <a
+              href={heroContent.socialLinks.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="retro-button bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              LinkedIn
+            </a>
+            <a
+              href={heroContent.socialLinks.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="retro-button bg-background text-foreground hover:bg-muted"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <!-- Avatar -->
+        <div class="flex-1 flex justify-center md:justify-end">
+          <div class="relative w-64 h-64 md:w-80 md:h-80">
+            <div class="absolute inset-0 rounded-full border-3 border-primary/30 retro-shadow-lg"></div>
+            <img
+              src="/avatar.png"
+              alt="Oleg Kuibar's profile picture"
+              class="rounded-full object-cover w-full h-full"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+      <a
+        href="#about"
+        class="flex flex-col items-center text-muted-foreground hover:text-primary transition-colors"
+      >
+        <span class="text-sm mb-2">Scroll Down</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="animate-bounce"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-20 bg-muted/30">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="font-heading text-3xl md:text-4xl font-bold text-center mb-4">
+          {aboutContent.title}
+        </h2>
+        <p class="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+          {aboutContent.subtitle}
+        </p>
+
+        <!-- Cards -->
+        <div class="grid md:grid-cols-3 gap-6 mb-16">
+          {aboutCards.map((card) => (
+            <div class="retro-card text-center">
+              <div class="w-12 h-12 mx-auto mb-4 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
+                {card.icon === 'code' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                )}
+                {card.icon === 'rocket' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                  </svg>
+                )}
+                {card.icon === 'users' && (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                )}
+              </div>
+              <h3 class="font-heading text-lg font-semibold mb-2">{card.title}</h3>
+              <p class="text-sm text-muted-foreground">{card.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <!-- Journey -->
+        <div class="retro-card">
+          <h3 class="font-heading text-2xl font-semibold mb-4">
+            {aboutContent.journey.title}
+          </h3>
+          {aboutContent.journey.paragraphs.map((paragraph) => (
+            <p class="text-muted-foreground mb-4 last:mb-0 leading-relaxed">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
