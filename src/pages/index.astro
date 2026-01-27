@@ -7,7 +7,9 @@ const heroContent = {
   name: 'Oleg Kuibar',
   role: 'Staff Software Engineer',
   description:
-    'I bridge technical excellence, architectural innovation, and team leadership to craft scalable, maintainable, and user-focused systems.',
+    "Building the parts of apps that people click on. Somehow ended up making tools instead of features. No regrets.",
+  favLesson:
+    "Estimating software? Impossible. But you can always find a solution that fits the timeline. Time, quality, money: pick two.",
   socialLinks: {
     linkedin: 'https://linkedin.com/in/olegkuibar',
     github: 'https://github.com/oleg-kuibar',
@@ -17,12 +19,14 @@ const heroContent = {
 const aboutContent = {
   title: 'About Me',
   subtitle:
-    'As a Staff Frontend Engineer with 8+ years of experience, I bridge technical excellence, architectural innovation, and team leadership to craft scalable, maintainable, and user-focused systems.',
+    "10+ years of making web apps not suck. Currently obsessed with design systems and making other developers' lives easier.",
   journey: {
     title: 'My Journey',
     paragraphs: [
-      "I'm a Frontend Enthusiast from Toronto. While I primarily focus on frontend technologies, I have a boundless passion for exploring and discovering new technologies. I believe in lifelong learning and always strive to expand my horizons as a software engineer.",
-      "My work extends beyond code—I shape systems, mentor teams, and drive strategic outcomes. This portfolio showcases flagship projects, alongside thought leadership via blog posts. It's a living artifact of my experience in frontend engineering, highlighting my ability to lead complex initiatives, optimize critical paths, and deliver measurable business value.",
+      "Originally from Ukraine, now based in Toronto. At Float, I work on platform stuff: design systems, shared components, the boring-sounding things that actually make everyone else's job less annoying. Time, quality, money all at once? Rare find. Float's the first place I've seen get close with the smallest trade-offs.",
+      "Been doing this for over a decade. Pushed teams toward Tailwind before it was cool, set up monorepos when everyone was scared of them, and once turned a 30-second page load into half a second. That one felt good.",
+      "The real lessons though? Not about code. You can't micromanage good work into existence. Trust people, respect them, get out of the way. If users notice things got better, that's the win.",
+      "Outside work, I'm messing with AI tools and side projects. Currently building a <a href='https://kurast.trade' target='_blank' rel='noopener noreferrer' class='text-primary hover:underline'>Diablo trading platform</a> on <a href='https://www.convex.dev/' target='_blank' rel='noopener noreferrer' class='text-primary hover:underline'>Convex</a>.",
     ],
   },
 };
@@ -30,28 +34,28 @@ const aboutContent = {
 const aboutCards = [
   {
     icon: 'code',
-    title: 'Technical Excellence',
+    title: 'Platform Engineering',
     description:
-      'I specialize in building high-performance, scalable frontend systems with React, TypeScript, and Next.js.',
+      "Design systems, component libraries, all the stuff that makes other devs go 'oh nice, this already exists.'",
   },
   {
     icon: 'rocket',
-    title: 'Architectural Innovation',
+    title: 'Performance & DX',
     description:
-      'I design modular, maintainable architectures that scale with complexity and enable teams to work efficiently.',
+      'Making builds faster, workflows smoother, and that spinning loader show up less. The unglamorous but satisfying work.',
   },
   {
-    icon: 'users',
-    title: 'Team Leadership',
+    icon: 'coffee',
+    title: 'Off the Clock',
     description:
-      'I mentor engineers, drive technical decisions, and bridge the gap between business goals and technical implementation.',
+      "Fueled by coffee, distracted by Diablo, occasionally escaping on a Bonneville TFC.",
   },
 ];
 ---
 
 <BaseLayout
   title="Oleg Kuibar | Staff Frontend Engineer"
-  description="Portfolio of Oleg Kuibar, a Staff Frontend Engineer specializing in React, TypeScript, and modern frontend architecture."
+  description="Portfolio of Oleg Kuibar, a Staff Frontend Engineer specializing in front-end platform engineering and design systems."
 >
   <!-- Hero Section -->
   <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
@@ -66,8 +70,11 @@ const aboutCards = [
           <h2 class="text-xl md:text-2xl text-muted-foreground mb-4">
             {heroContent.role}
           </h2>
-          <p class="text-lg text-muted-foreground mb-8 max-w-2xl">
+          <p class="text-lg text-muted-foreground mb-4 max-w-2xl">
             {heroContent.description}
+          </p>
+          <p class="text-sm text-muted-foreground/80 italic mb-8 max-w-2xl">
+            "{heroContent.favLesson}"
           </p>
           <div class="flex flex-wrap gap-4 justify-center md:justify-start">
             <a
@@ -158,12 +165,12 @@ const aboutCards = [
                     <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
                   </svg>
                 )}
-                {card.icon === 'users' && (
+                {card.icon === 'coffee' && (
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    <path d="M10 2v2" />
+                    <path d="M14 2v2" />
+                    <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" />
+                    <path d="M6 2v2" />
                   </svg>
                 )}
               </div>
@@ -179,8 +186,7 @@ const aboutCards = [
             {aboutContent.journey.title}
           </h3>
           {aboutContent.journey.paragraphs.map((paragraph) => (
-            <p class="text-muted-foreground mb-4 last:mb-0 leading-relaxed">
-              {paragraph}
+            <p class="text-muted-foreground mb-4 last:mb-0 leading-relaxed" set:html={paragraph}>
             </p>
           ))}
         </div>
