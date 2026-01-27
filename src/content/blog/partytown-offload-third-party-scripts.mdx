@@ -9,8 +9,6 @@ featured: true
 draft: false
 ---
 
-import { Mermaid } from '@/components/react/Mermaid';
-
 # Offload Third-Party Scripts to a Web Worker
 
 Move analytics, compliance, and tracking off the main thread. Your app runs unblocked.
@@ -56,9 +54,7 @@ Your app competes for CPU time with scripts you don't control. Without optimizat
 2. **Sync XHR intercept** - Service Worker catches and relays to main thread
 3. **Response returns** - Script continues as if DOM was local
 
-<Mermaid
-  client:load
-  chart={`
+<Mermaid chart={`
 flowchart LR
     subgraph MT["Main Thread"]
         A["Your Application"]
@@ -91,9 +87,7 @@ flowchart LR
 
 ### The Flow
 
-<Mermaid
-  client:load
-  chart={`
+<Mermaid chart={`
 sequenceDiagram
     participant Script as Third-Party Script
     participant Proxy as JS Proxy (Worker)

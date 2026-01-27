@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BlogLayout from '@/layouts/BlogLayout.astro';
 import { getReadingTime } from '@/lib/blog';
+import Mermaid from '@/components/astro/Mermaid.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -14,6 +15,10 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await post.render();
 const readingTime = getReadingTime(post.body || '');
+
+const components = {
+  Mermaid,
+};
 ---
 
 <BlogLayout
@@ -25,5 +30,5 @@ const readingTime = getReadingTime(post.body || '');
   tags={post.data.tags}
   readingTime={readingTime}
 >
-  <Content />
+  <Content components={components} />
 </BlogLayout>
