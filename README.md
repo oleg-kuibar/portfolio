@@ -1,71 +1,105 @@
 # Portfolio Website
 
-This is a portfolio website for Oleg Kuibar, a Staff Frontend Engineer. The website is built with Next.js, TypeScript, and Tailwind CSS.
+Personal portfolio website for Oleg Kuibar, Staff Frontend Engineer. Built with Astro, React, and Tailwind CSS v4.
 
-## Environment Setup
+## Tech Stack
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env.local` file in the root directory with the following variables:
-   ```env
-   # Get your API key from https://resend.com/api-keys
-   RESEND_API_KEY=re_your_actual_api_key_here
-   ```
-4. For production deployment on Vercel, add the environment variables in your Vercel project settings.
+- **Framework:** [Astro](https://astro.build/) 5.x with static output
+- **UI Components:** [HeroUI](https://heroui.com/) v3 + React islands
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) v4 with OKLCH colors
+- **Content:** MDX with Astro Content Collections
+- **Diagrams:** Mermaid for technical diagrams
+- **Package Manager:** [pnpm](https://pnpm.io/)
+- **Deployment:** Vercel
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+```
 
 ## Project Structure
 
-The project follows a feature-based organization pattern:
-
-```sh
-src
-|
-+-- app               # Next.js app directory with routes and layouts
-|
-+-- assets            # Static assets like images and fonts
-|
-+-- components        # Shared components used across features
-|   |
-|   +-- layouts       # Layout components
-|   +-- ui            # UI components (shadcn/ui)
-|
-+-- config            # Global configurations
-|
-+-- features          # Feature-based modules
-|   |
-|   +-- about         # About section feature
-|   +-- case-studies  # Case studies feature
-|   +-- contact       # Contact section feature with Resend integration
-|   +-- footer        # Footer feature
-|   +-- hero          # Hero section feature
-|   +-- home          # Home page feature
-|   +-- navigation    # Navigation feature
-|   +-- projects      # Projects section feature
-|   +-- skills        # Skills section feature
-|   +-- tech-radar    # Tech radar feature
-|   +-- theme         # Theme feature
-|   +-- ui            # UI-specific feature components
-|
-+-- hooks             # Shared hooks
-|
-+-- lib               # Reusable libraries and providers
-|
-+-- types             # Shared TypeScript types
-|
-+-- utils             # Shared utility functions
-
-## Contact Form
-
-The contact form uses Resend for email delivery. To set it up:
-
-1. Sign up for a Resend account at https://resend.com
-2. Get your API key from https://resend.com/api-keys
-3. Add the API key to your environment variables
-4. Verify your domain in Resend to send emails from your domain
-
-The contact form will send emails to contact@olegkuibar.dev.
-
 ```
+src/
+├── components/
+│   ├── astro/           # Static Astro components
+│   │   ├── BaseHead.astro
+│   │   ├── Header.astro
+│   │   ├── Footer.astro
+│   │   ├── BlogCard.astro
+│   │   ├── CategoryBadge.astro
+│   │   └── TagList.astro
+│   └── react/           # React islands (client-side)
+│       ├── Navigation.tsx
+│       ├── ThemeToggle.tsx
+│       ├── SearchDialog.tsx
+│       ├── CategoryTabs.tsx
+│       └── Mermaid.tsx
+├── content/
+│   ├── config.ts        # Content collection schema
+│   └── blog/            # MDX blog posts
+├── layouts/
+│   ├── BaseLayout.astro
+│   └── BlogLayout.astro
+├── lib/
+│   ├── blog.ts          # Blog utilities
+│   └── utils.ts         # Helpers (cn, formatDate)
+├── pages/
+│   ├── index.astro      # Homepage
+│   ├── blog/
+│   │   ├── index.astro
+│   │   ├── [slug].astro
+│   │   ├── category/[category].astro
+│   │   └── tag/[tag].astro
+│   └── rss.xml.ts
+└── styles/
+    └── global.css       # Tailwind + design tokens
+```
+
+## Design System
+
+"Retro with a twist" aesthetic using OKLCH color space:
+
+| Token | Light | Dark |
+|-------|-------|------|
+| Primary | Teal `oklch(0.55 0.14 195)` | Bright teal `oklch(0.70 0.14 195)` |
+| Secondary | Terracotta `oklch(0.60 0.15 45)` | Light terracotta `oklch(0.65 0.14 45)` |
+| Accent | Mustard `oklch(0.75 0.15 85)` | Mustard `oklch(0.75 0.15 85)` |
+
+**Typography:**
+- Headings: Space Grotesk
+- Body: Inter
+- Code: JetBrains Mono
+
+## Blog Features
+
+- MDX support with syntax highlighting
+- Categories and tags
+- Reading time calculation
+- Featured posts
+- Full-text search
+- RSS feed at `/rss.xml`
+- Mermaid diagrams
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start dev server at localhost:4321 |
+| `pnpm build` | Build static site to `dist/` |
+| `pnpm preview` | Preview production build |
+
+## License
+
+MIT
