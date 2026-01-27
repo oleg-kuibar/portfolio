@@ -97,15 +97,27 @@ const aboutCards = [
           </div>
         </div>
 
-        <!-- Avatar -->
+        <!-- Avatar with flip effect -->
         <div class="flex-1 flex justify-center md:justify-end">
-          <div class="relative w-64 h-64 md:w-80 md:h-80">
-            <div class="absolute inset-0 rounded-full border-3 border-primary/30 retro-shadow-lg"></div>
-            <img
-              src="https://github.com/oleg-kuibar.png"
-              alt="Oleg Kuibar's profile picture"
-              class="rounded-full object-cover w-full h-full retro-img"
-            />
+          <div class="flip-card w-64 h-64 md:w-80 md:h-80">
+            <div class="flip-card-inner">
+              <!-- Front - Profile picture -->
+              <div class="flip-card-front">
+                <img
+                  src="https://github.com/oleg-kuibar.png"
+                  alt="Oleg Kuibar's profile picture"
+                  class="rounded-full object-cover w-full h-full retro-img border-4 border-foreground/20"
+                />
+              </div>
+              <!-- Back - Bobber Lover -->
+              <div class="flip-card-back">
+                <img
+                  src="/bobber-lover.jpg"
+                  alt="I'm a Bobber Lover"
+                  class="rounded-full object-cover w-full h-full border-4 border-foreground/20"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
