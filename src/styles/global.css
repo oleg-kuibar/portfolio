@@ -339,3 +339,21 @@
 .dark ::selection {
   background-color: oklch(0.70 0.14 195 / 0.3);
 }
+
+/* Mermaid diagram styles */
+.mermaid-container {
+  background-color: var(--color-muted);
+  border: 2px solid oklch(0.18 0.02 45 / 0.2);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-retro);
+}
+
+.dark .mermaid-container {
+  border-color: oklch(0.92 0.02 85 / 0.2);
+}
+
+.mermaid-container svg {
+  max-width: 100%;
+  height: auto;
+}

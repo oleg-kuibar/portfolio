@@ -9,6 +9,8 @@ featured: true
 draft: false
 ---
 
+import { Mermaid } from '@/components/react/Mermaid';
+
 # Offload Third-Party Scripts to a Web Worker
 
 Move analytics, compliance, and tracking off the main thread. Your app runs unblocked.
@@ -54,16 +56,59 @@ Your app competes for CPU time with scripts you don't control. Without optimizat
 2. **Sync XHR intercept** - Service Worker catches and relays to main thread
 3. **Response returns** - Script continues as if DOM was local
 
-The architecture looks like this:
+<Mermaid
+  client:load
+  chart={`
+flowchart LR
+    subgraph MT["Main Thread"]
+        A["Your Application"]
+        B["DOM Access"]
+        C["Partytown Relay"]
+    end
 
-```
-Main Thread          Service Worker       Web Worker
-┌─────────────┐      ┌───────────────┐    ┌─────────────┐
-│ Your App    │      │   Request     │    │ JS Proxies  │
-│ DOM Access  │ ←──→ │  Interceptor  │ ←→ │ analytics.js│
-│ PT Relay    │      │ Sync XHR/msg  │    │ tracking.js │
-└─────────────┘      └───────────────┘    └─────────────┘
-```
+    subgraph SW["Service Worker"]
+        D["Request Interceptor"]
+        E["Sync XHR / postMessage"]
+    end
+
+    subgraph WW["Web Worker"]
+        F["JS Proxies"]
+        G["analytics.js"]
+        H["tracking.js"]
+        I["compliance.js"]
+    end
+
+    A --> B
+    B <--> C
+    C <--> D
+    D <--> E
+    E <--> F
+    F --> G
+    F --> H
+    F --> I
+`}
+/>
+
+### The Flow
+
+<Mermaid
+  client:load
+  chart={`
+sequenceDiagram
+    participant Script as Third-Party Script
+    participant Proxy as JS Proxy (Worker)
+    participant SW as Service Worker
+    participant Main as Main Thread DOM
+
+    Script->>Proxy: document.querySelector()
+    Proxy->>SW: Sync XHR Request
+    SW->>Main: postMessage
+    Main->>Main: Execute DOM operation
+    Main->>SW: Return result
+    SW->>Proxy: Response
+    Proxy->>Script: Return DOM element
+`}
+/>
 
 ## Implementation
 
