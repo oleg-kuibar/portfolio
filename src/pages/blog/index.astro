@@ -1,0 +1,87 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BlogCard from '@/components/astro/BlogCard.astro';
+import { SearchDialog } from '@/components/react/SearchDialog';
+import { CategoryTabs } from '@/components/react/CategoryTabs';
+import { getAllBlogPosts, getFeaturedPosts, getAllCategories, getReadingTime } from '@/lib/blog';
+
+const posts = await getAllBlogPosts();
+const featuredPosts = await getFeaturedPosts(3);
+const categories = await getAllCategories();
+
+// Prepare posts data for client-side search
+const postsData = posts.map((post) => ({
+  slug: post.slug,
+  title: post.data.title,
+  description: post.data.description,
+  category: post.data.category,
+  tags: post.data.tags,
+}));
+---
+
+<BaseLayout
+  title="Blog | Oleg Kuibar"
+  description="Articles about frontend development, architecture, and engineering leadership."
+>
+  <div class="container mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="max-w-2xl mb-12">
+      <h1 class="font-heading text-4xl md:text-5xl font-bold mb-4">Blog</h1>
+      <p class="text-lg text-muted-foreground">
+        Thoughts on frontend development, system architecture, and engineering leadership.
+      </p>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="flex flex-wrap items-center gap-4 mb-8">
+      <SearchDialog client:load posts={postsData} />
+      <CategoryTabs client:load categories={categories} currentCategory={null} />
+    </div>
+
+    <!-- Featured Posts -->
+    {featuredPosts.length > 0 && (
+      <section class="mb-16">
+        <h2 class="font-heading text-2xl font-semibold mb-6">Featured</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featuredPosts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              slug={post.slug}
+              category={post.data.category}
+              tags={post.data.tags}
+              featured={true}
+              readingTime={getReadingTime(post.body || '')}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- All Posts -->
+    <section>
+      <h2 class="font-heading text-2xl font-semibold mb-6">All Posts</h2>
+      {posts.length > 0 ? (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {posts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              slug={post.slug}
+              category={post.data.category}
+              tags={post.data.tags}
+              featured={post.data.featured}
+              readingTime={getReadingTime(post.body || '')}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="retro-card text-center py-12">
+          <p class="text-muted-foreground">No posts yet. Check back soon!</p>
+        </div>
+      )}
+    </section>
+  </div>
+</BaseLayout>

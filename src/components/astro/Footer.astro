@@ -1,0 +1,51 @@
+---
+const currentYear = new Date().getFullYear();
+
+const socialLinks = [
+  {
+    name: 'GitHub',
+    href: 'https://github.com/oleg-kuibar',
+    icon: 'github',
+  },
+  {
+    name: 'LinkedIn',
+    href: 'https://linkedin.com/in/olegkuibar',
+    icon: 'linkedin',
+  },
+];
+---
+
+<footer class="border-t-2 border-border bg-muted/30">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex flex-col items-center md:items-start gap-1">
+        <p class="font-heading font-semibold text-foreground">
+          Oleg Kuibar
+        </p>
+        <p class="text-sm text-muted-foreground">
+          Staff Frontend Engineer
+        </p>
+      </div>
+
+      <div class="flex items-center gap-4">
+        {socialLinks.map((link) => (
+          <a
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="retro-button bg-background text-foreground hover:bg-primary hover:text-primary-foreground"
+            aria-label={`Visit ${link.name}`}
+          >
+            {link.name}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="mt-8 pt-4 border-t border-border text-center">
+      <p class="text-sm text-muted-foreground">
+        &copy; {currentYear} Oleg Kuibar. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>

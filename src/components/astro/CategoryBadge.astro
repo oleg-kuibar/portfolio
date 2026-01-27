@@ -1,0 +1,43 @@
+---
+import { slugify } from '@/lib/utils';
+
+interface Props {
+  category: string;
+  showLink?: boolean;
+}
+
+const { category, showLink = true } = Astro.props;
+
+const categoryColors: Record<string, string> = {
+  Frontend: 'bg-primary/10 text-primary border-primary/30',
+  Backend: 'bg-secondary/10 text-secondary border-secondary/30',
+  DevOps: 'bg-accent/10 text-accent border-accent/30',
+  Architecture: 'bg-primary/10 text-primary border-primary/30',
+  Career: 'bg-secondary/10 text-secondary border-secondary/30',
+  Tutorial: 'bg-accent/10 text-accent border-accent/30',
+  Thoughts: 'bg-muted text-muted-foreground border-border',
+};
+
+const colorClass = categoryColors[category] || categoryColors.Thoughts;
+---
+
+{showLink ? (
+  <a
+    href={`/blog/category/${slugify(category)}`}
+    class:list={[
+      'inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border transition-opacity hover:opacity-80',
+      colorClass,
+    ]}
+  >
+    {category}
+  </a>
+) : (
+  <span
+    class:list={[
+      'inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border',
+      colorClass,
+    ]}
+  >
+    {category}
+  </span>
+)}

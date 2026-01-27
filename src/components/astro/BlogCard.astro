@@ -1,0 +1,62 @@
+---
+import { formatDate } from '@/lib/utils';
+import CategoryBadge from './CategoryBadge.astro';
+import TagList from './TagList.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  slug: string;
+  category: string;
+  tags: string[];
+  featured?: boolean;
+  readingTime?: string;
+}
+
+const { title, description, date, slug, category, tags, featured = false, readingTime } = Astro.props;
+---
+
+<article class:list={[
+  'retro-card group transition-all hover:translate-x-[-2px] hover:translate-y-[-2px]',
+  featured && 'border-primary/50',
+]}>
+  <a href={`/blog/${slug}`} class="block">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <CategoryBadge category={category} />
+      {featured && (
+        <span class="text-xs font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">
+          Featured
+        </span>
+      )}
+    </div>
+
+    <h3 class="font-heading text-xl font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
+      {title}
+    </h3>
+
+    <p class="text-muted-foreground text-sm mb-4 line-clamp-2">
+      {description}
+    </p>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+      <div class="flex items-center gap-3">
+        <time datetime={date.toISOString()}>
+          {formatDate(date)}
+        </time>
+        {readingTime && (
+          <>
+            <span class="text-border">|</span>
+            <span>{readingTime}</span>
+          </>
+        )}
+      </div>
+    </div>
+
+    {tags.length > 0 && (
+      <div class="mt-4 pt-4 border-t border-border">
+        <TagList tags={tags.slice(0, 3)} size="sm" />
+      </div>
+    )}
+  </a>
+</article>

@@ -1,0 +1,75 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BlogCard from '@/components/astro/BlogCard.astro';
+import { CategoryTabs } from '@/components/react/CategoryTabs';
+import { getAllBlogPosts, getAllCategories, getReadingTime } from '@/lib/blog';
+import { slugify } from '@/lib/utils';
+
+export async function getStaticPaths() {
+  const categories = await getAllCategories();
+  return categories.map((category) => ({
+    params: { category: slugify(category) },
+    props: { categoryName: category },
+  }));
+}
+
+const { categoryName } = Astro.props;
+const allPosts = await getAllBlogPosts();
+const posts = allPosts.filter((post) => post.data.category === categoryName);
+const categories = await getAllCategories();
+---
+
+<BaseLayout
+  title={`${categoryName} | Blog | Oleg Kuibar`}
+  description={`Articles about ${categoryName.toLowerCase()}.`}
+>
+  <div class="container mx-auto px-4 py-12">
+    <!-- Back link -->
+    <a
+      href="/blog"
+      class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      All Posts
+    </a>
+
+    <!-- Header -->
+    <div class="max-w-2xl mb-12">
+      <h1 class="font-heading text-4xl md:text-5xl font-bold mb-4">
+        {categoryName}
+      </h1>
+      <p class="text-lg text-muted-foreground">
+        {posts.length} {posts.length === 1 ? 'post' : 'posts'} in this category
+      </p>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="mb-8">
+      <CategoryTabs client:load categories={categories} currentCategory={categoryName} />
+    </div>
+
+    <!-- Posts -->
+    {posts.length > 0 ? (
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            slug={post.slug}
+            category={post.data.category}
+            tags={post.data.tags}
+            featured={post.data.featured}
+            readingTime={getReadingTime(post.body || '')}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="retro-card text-center py-12">
+        <p class="text-muted-foreground">No posts in this category yet.</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
