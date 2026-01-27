@@ -9,22 +9,23 @@ Personal portfolio website for Oleg Kuibar, Staff Frontend Engineer. Built with 
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/) v4 with OKLCH colors
 - **Content:** MDX with Astro Content Collections
 - **Diagrams:** Mermaid for technical diagrams
+- **Package Manager:** [pnpm](https://pnpm.io/)
 - **Deployment:** Vercel
 
 ## Getting Started
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm run dev
+pnpm dev
 
 # Build for production
-npm run build
+pnpm build
 
 # Preview production build
-npm run preview
+pnpm preview
 ```
 
 ## Project Structure
@@ -95,9 +96,9 @@ src/
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start dev server at localhost:4321 |
-| `npm run build` | Build static site to `dist/` |
-| `npm run preview` | Preview production build |
+| `pnpm dev` | Start dev server at localhost:4321 |
+| `pnpm build` | Build static site to `dist/` |
+| `pnpm preview` | Preview production build |
 
 ## License
 
