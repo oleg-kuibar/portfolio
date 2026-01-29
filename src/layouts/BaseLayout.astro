@@ -10,15 +10,19 @@ interface Props {
   description: string;
   image?: string;
   article?: boolean;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  author?: string;
+  tags?: string[];
 }
 
-const { title, description, image, article = false } = Astro.props;
+const { title, description, image, article = false, publishedTime, modifiedTime, author, tags } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
-    <BaseHead title={title} description={description} image={image} article={article} />
+    <BaseHead title={title} description={description} image={image} article={article} publishedTime={publishedTime} modifiedTime={modifiedTime} author={author} tags={tags} />
     <script is:inline>
       // Theme initialization - runs before render to prevent flash
       const getThemePreference = () => {

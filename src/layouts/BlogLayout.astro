@@ -27,7 +27,7 @@ const prevPost = currentIndex > 0 ? seriesInfo?.posts[currentIndex - 1] : null;
 const nextPost = seriesInfo && currentIndex < seriesInfo.posts.length - 1 ? seriesInfo.posts[currentIndex + 1] : null;
 ---
 
-<BaseLayout title={`${title} | Oleg Kuibar`} description={description} article={true}>
+<BaseLayout title={`${title} | Oleg Kuibar`} description={description} article={true} publishedTime={date} author={author} tags={tags}>
   <article class="container mx-auto px-4 py-12">
     <!-- Back link -->
     <a
