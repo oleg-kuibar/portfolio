@@ -1,6 +1,7 @@
 ---
 import { formatDate } from '@/lib/utils';
 import CategoryBadge from './CategoryBadge.astro';
+import SeriesBadge from './SeriesBadge.astro';
 import TagList from './TagList.astro';
 
 interface Props {
@@ -12,9 +13,14 @@ interface Props {
   tags: string[];
   featured?: boolean;
   readingTime?: string;
+  seriesInfo?: {
+    partNumber: number;
+    totalParts: number;
+    seriesSlug: string;
+  } | null;
 }
 
-const { title, description, date, slug, category, tags, featured = false, readingTime } = Astro.props;
+const { title, description, date, slug, category, tags, featured = false, readingTime, seriesInfo } = Astro.props;
 ---
 
 <article class:list={[
@@ -24,6 +30,14 @@ const { title, description, date, slug, category, tags, featured = false, readin
   <a href={`/blog/${slug}`} class="block">
     <div class="flex flex-wrap items-center gap-2 mb-3">
       <CategoryBadge category={category} showLink={false} />
+      {seriesInfo && (
+        <SeriesBadge
+          partNumber={seriesInfo.partNumber}
+          totalParts={seriesInfo.totalParts}
+          seriesSlug={seriesInfo.seriesSlug}
+          compact={true}
+        />
+      )}
       {featured && (
         <span class="text-xs font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">
           Featured

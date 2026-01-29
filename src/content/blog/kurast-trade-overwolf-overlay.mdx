@@ -1,0 +1,461 @@
+---
+title: "Building kurast.trade Part 2: In-Game Overlay with Overwolf"
+description: "What I learned building an Overwolf overlay: multi-window coordination, wrapping callback APIs, click-through bugs, and calculating game events locally."
+date: "2025-01-29"
+author: "Oleg Kuibar"
+tags: ["overwolf", "gaming", "overlay", "diablo-4", "electron-alternative"]
+category: "Architecture"
+featured: false
+draft: false
+series: "building-kurast-trade"
+seriesPart: 2
+---
+
+# Building kurast.trade Part 2: In-Game Overlay with Overwolf
+
+Alt-tabbing out of Diablo 4 to check Discord for trades kills immersion. You lose your Helltide progress. You miss world boss spawns. Trading should happen *in* the game.
+
+That's why I built an overlay for [kurast.trade](https://kurast.trade). Not Electron. Not raw CEF injection. Overwolf handles game detection, hotkeys, window management. You focus on the app.
+
+The Overwolf getting-started guide covers the basics. This post is about the stuff that isn't in the docs.
+
+## Multi-Window Architecture
+
+Overwolf apps aren't single-page apps. You orchestrate multiple windows with different behaviors.
+
+```json
+{
+  "data": {
+    "start_window": "background",
+    "windows": {
+      "background": {
+        "file": "windows/background.html",
+        "is_background_page": true
+      },
+      "desktop": {
+        "file": "windows/desktop.html",
+        "desktop_only": true,
+        "native_window": true,
+        "resizable": true,
+        "size": { "width": 1200, "height": 800 }
+      },
+      "overlay": {
+        "file": "windows/overlay.html",
+        "transparent": true,
+        "resizable": true,
+        "in_game_only": true,
+        "size": { "width": 500, "height": 600 }
+      },
+      "notification": {
+        "file": "windows/notification.html",
+        "transparent": true,
+        "in_game_only": true,
+        "resizable": false,
+        "size": { "width": 350, "height": 100 }
+      },
+      "status_bar": {
+        "file": "windows/statusbar.html",
+        "transparent": true,
+        "resizable": true,
+        "in_game_only": true,
+        "size": { "width": 620, "height": 36 }
+      }
+    }
+  }
+}
+```
+
+<Mermaid chart={`
+flowchart TB
+    BG[background<br/>always running]
+    BG --> OV[overlay<br/>in-game only]
+    BG --> DT[desktop<br/>game closed]
+    BG --> SB[status_bar<br/>compact timer widget]
+    BG --> NT[notification<br/>toasts]
+`} />
+
+The background window is the brain. It never renders UI. It just coordinates. Game launches, background shows the overlay. Game closes, background hides overlay and shows the desktop window.
+
+```typescript
+const windowStates: Record<string, WindowState> = {
+  [WINDOW_NAMES.OVERLAY]: { id: null, isVisible: false },
+  [WINDOW_NAMES.DESKTOP]: { id: null, isVisible: false },
+  [WINDOW_NAMES.STATUSBAR]: { id: null, isVisible: false },
+  [WINDOW_NAMES.NOTIFICATION]: { id: null, isVisible: false },
+};
+
+let isGameRunning = false;
+```
+
+Background tracks which windows exist and routes events. Overlay, desktop, statusbar. They're views. Background owns the state.
+
+## Promisifying Overwolf's Callback API
+
+Overwolf's API is callback-based. Feels like 2015. Every call looks like this:
+
+```typescript
+// Overwolf's callback style
+overwolf.windows.obtainDeclaredWindow('overlay', (result) => {
+  if (result.success) {
+    overwolf.windows.restore(result.window.id, (restoreResult) => {
+      if (restoreResult.success) {
+        console.log('Window shown');
+      }
+    });
+  }
+});
+```
+
+Callback hell gets old fast. Wrap everything in Promises:
+
+```typescript
+export function obtainDeclaredWindow(
+  windowName: WindowName
+): Promise<overwolf.windows.WindowInfo> {
+  return new Promise((resolve, reject) => {
+    overwolf.windows.obtainDeclaredWindow(windowName, (result) => {
+      if (result.success) {
+        resolve(result.window);
+      } else {
+        reject(new Error(result.error ?? `Failed to obtain window: ${windowName}`));
+      }
+    });
+  });
+}
+
+export function restoreWindow(windowId: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    overwolf.windows.restore(windowId, (result) => {
+      if (result.success) {
+        resolve();
+      } else {
+        reject(new Error(result.error ?? 'Failed to restore window'));
+      }
+    });
+  });
+}
+```
+
+Window management becomes readable:
+
+```typescript
+// With Promise wrappers
+async function showOverlay(): Promise<void> {
+  const windowInfo = await obtainDeclaredWindow(WINDOW_NAMES.OVERLAY);
+  await restoreSavedPosition(windowInfo.id);
+  await changeSizeByPercent(windowInfo.id, preset.widthPct, preset.heightPct);
+  await restoreWindow(windowInfo.id);
+}
+```
+
+I ended up with ~400 lines of wrappers. Tedious work. But every feature I built after that was cleaner because of it.
+
+## Game Detection & Window Orchestration
+
+The background window monitors game state and coordinates all other windows.
+
+```typescript
+async function handleGameStateUpdate(
+  event: overwolf.games.GameInfoUpdatedEvent
+): Promise<void> {
+  if (!event.gameInfo || event.gameInfo.id !== DIABLO_4_GAME_ID) return;
+
+  const wasRunning = isGameRunning;
+  isGameRunning = event.gameInfo.isRunning;
+
+  if (!wasRunning && isGameRunning) {
+    // Game started
+    await hideDesktop();
+    await showOverlay();
+  } else if (wasRunning && !isGameRunning) {
+    // Game stopped
+    await hideOverlay();
+    await showDesktop();
+  }
+}
+```
+
+`22700` is Diablo 4's ID in Overwolf's game database. Game starts, hide desktop, show overlay. Game stops, reverse.
+
+Hotkeys go in the manifest. Overwolf captures them globally:
+
+```json
+{
+  "hotkeys": {
+    "toggle_statusbar": {
+      "title": "Toggle Status Bar",
+      "action-type": "toggle",
+      "default": "Shift+F9",
+      "passthrough": true
+    },
+    "toggle_overlay": {
+      "title": "Toggle Overlay",
+      "action-type": "toggle",
+      "default": "Shift+F10",
+      "passthrough": true
+    }
+  }
+}
+```
+
+Background routes hotkeys to handlers:
+
+```typescript
+function handleHotkey(event: overwolf.settings.hotkeys.OnPressedEvent): void {
+  switch (event.name) {
+    case HOTKEY_NAMES.TOGGLE_STATUSBAR:
+      toggleStatusbar();
+      break;
+    case HOTKEY_NAMES.TOGGLE_OVERLAY:
+      toggleOverlay();
+      break;
+    case HOTKEY_NAMES.TOGGLE_CLICKTHROUGH:
+      toggleClickThrough();
+      break;
+    case HOTKEY_NAMES.CYCLE_OVERLAY_SIZE:
+      cycleOverlaySize();
+      break;
+  }
+}
+```
+
+## Cross-Window Messaging
+
+Five windows. They need to stay in sync somehow. Background holds state, other windows subscribe to changes.
+
+```typescript
+export function sendMessage(
+  windowName: WindowName,
+  messageId: string,
+  messageContent: unknown
+): void {
+  overwolf.windows.sendMessage(windowName, messageId, messageContent, () => {});
+}
+
+export function onMessageReceived(
+  handler: (senderId: string, messageType: string, payload: Record<string, unknown>) => void
+): () => void {
+  const wrappedHandler = (message: overwolf.windows.MessageReceivedEvent): void => {
+    handler(message.senderId ?? 'unknown', message.id, message.content as Record<string, unknown>);
+  };
+  overwolf.windows.onMessageReceived.addListener(wrappedHandler);
+  return () => overwolf.windows.onMessageReceived.removeListener(wrappedHandler);
+}
+```
+
+<Mermaid chart={`
+sequenceDiagram
+    participant BG as background
+    participant OV as overlay
+    participant SB as status_bar
+
+    Note over BG: User presses Shift+F12
+    BG->>BG: cycleOverlaySize()
+    BG->>OV: sendMessage('size_changed', {label: 'L'})
+    OV->>OV: Update size indicator
+
+    Note over BG: User presses Shift+F11
+    BG->>BG: toggleClickThrough()
+    BG->>OV: sendMessage('clickthrough_changed', {enabled: true})
+    OV->>OV: Update UI state
+`} />
+
+State changes get broadcast to whoever needs them:
+
+```typescript
+async function cycleOverlaySize(): Promise<void> {
+  currentSizePresetIndex = (currentSizePresetIndex + 1) % SIZE_PRESETS.length;
+  localStorage.setItem(STORAGE_KEYS.SIZE_PRESET, currentSizePresetIndex.toString());
+
+  const preset = SIZE_PRESETS[currentSizePresetIndex];
+  await changeSizeByPercent(state.id, preset.widthPct, preset.heightPct);
+
+  // Notify overlay to update its UI
+  sendMessage(WINDOW_NAMES.OVERLAY, 'size_changed', { label: preset.label });
+}
+```
+
+One-way data flow. Background owns truth. Windows just render what they're told.
+
+## Click-Through Mode Gotcha
+
+Overwolf's `setWindowStyle` doesn't replace styles. It *adds* them.
+
+```typescript
+// DON'T do this - styles accumulate!
+overwolf.windows.setWindowStyle(windowId, InputPassThrough, callback);
+// Later...
+overwolf.windows.setWindowStyle(windowId, InputPassThrough, callback); // No-op, already added
+```
+
+To turn it off, you need `removeWindowStyle`:
+
+```typescript
+export function setClickThrough(
+  windowId: string,
+  enabled: boolean
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const style = overwolf.windows.enums.WindowStyle.InputPassThrough;
+
+    if (enabled) {
+      // Add InputPassThrough style to enable click-through
+      overwolf.windows.setWindowStyle(windowId, style, (result) => {
+        if (result.success) resolve();
+        else reject(new Error(result.error ?? 'Failed to enable click-through'));
+      });
+    } else {
+      // Remove InputPassThrough style to disable click-through
+      overwolf.windows.removeWindowStyle(windowId, style, (result) => {
+        if (result.success) resolve();
+        else reject(new Error(result.error ?? 'Failed to disable click-through'));
+      });
+    }
+  });
+}
+```
+
+Spent an afternoon on this one. Click-through wouldn't turn off. Kept calling `setWindowStyle`, nothing happened. Finally read the API docs more carefully. The style was already applied. Calling set again was a no-op.
+
+## Multi-Monitor Position Persistence
+
+Users drag the overlay where they want it. You save the position. Then they undock their laptop. That saved `x: 2560` is now pointing at a monitor that doesn't exist.
+
+```typescript
+async function restoreSavedPosition(windowId: string): Promise<void> {
+  const saved = localStorage.getItem(STORAGE_KEYS.OVERLAY_POSITION);
+  if (!saved) return;
+
+  try {
+    const { x, y } = JSON.parse(saved);
+    const monitors = await getMonitors();
+
+    // Only restore if the saved position is still on a connected monitor
+    const isOnScreen = monitors.some(
+      (m) => x >= m.x && x < m.x + m.width && y >= m.y && y < m.y + m.height
+    );
+
+    if (isOnScreen) {
+      await changePosition(windowId, x, y);
+    }
+  } catch {
+    // Invalid saved position, ignore
+  }
+}
+```
+
+Check saved positions against current monitors. Otherwise your overlay spawns somewhere in the void and users think the app is broken.
+
+## Local Event Timers
+
+Diablo 4 events follow fixed schedules. Helltide is 55 minutes on, 5 off. World Boss every 3.5 hours. The patterns never change.
+
+Which means you can calculate them locally. No server, no API calls:
+
+```typescript
+// World Boss: Spawns every 3 hours 30 minutes
+const WORLD_BOSS_INTERVAL_MS = 210 * 60 * 1000;
+const WORLD_BOSS_ANCHOR = new Date('2024-01-01T12:00:00Z').getTime();
+
+export function calculateWorldBossStatus(): EventStatus {
+  const now = Date.now();
+  const timeSinceAnchor = now - WORLD_BOSS_ANCHOR;
+  const cyclePosition = timeSinceAnchor % WORLD_BOSS_INTERVAL_MS;
+
+  const activeWindow = 15 * 60 * 1000;
+  const isActive = cyclePosition < activeWindow;
+
+  let timeRemaining: number;
+  if (isActive) {
+    timeRemaining = Math.floor((activeWindow - cyclePosition) / 1000);
+  } else {
+    timeRemaining = Math.floor((WORLD_BOSS_INTERVAL_MS - cyclePosition) / 1000);
+  }
+
+  return {
+    name: 'World Boss',
+    isActive,
+    timeRemaining,
+    formattedTime: formatTime(timeRemaining),
+    // ...
+  };
+}
+```
+
+The anchor date is arbitrary. Pick any moment when you know a World Boss spawned. Modulo arithmetic handles the rest.
+
+Helltide is simpler. Aligned to clock hours:
+
+```typescript
+export function calculateHelltideStatus(): EventStatus {
+  const now = new Date();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  // Helltide: Active 55 minutes, break 5 minutes (aligned to clock hours)
+  const isActive = minutes < 55;
+
+  let timeRemaining: number;
+  if (isActive) {
+    timeRemaining = (55 - minutes) * 60 - seconds;
+  } else {
+    timeRemaining = (60 - minutes) * 60 - seconds;
+  }
+
+  return {
+    name: 'Helltide',
+    isActive,
+    timeRemaining,
+    formattedTime: formatTime(timeRemaining),
+    // ...
+  };
+}
+```
+
+A `setInterval` in the React component calls these every second. No network. Works offline. Accurate to the millisecond.
+
+## Vite Multi-Entry Build
+
+Five windows, five HTML entry points. Vite handles this:
+
+```typescript
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      input: {
+        background: resolve(__dirname, 'src/background/index.html'),
+        desktop: resolve(__dirname, 'src/desktop/index.html'),
+        overlay: resolve(__dirname, 'src/overlay/index.html'),
+        notification: resolve(__dirname, 'src/notification/index.html'),
+        statusbar: resolve(__dirname, 'src/statusbar/index.html'),
+      },
+      output: {
+        entryFileNames: 'windows/[name].js',
+        chunkFileNames: 'windows/[name]-[hash].js',
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('zustand') || id.includes('convex')) {
+              return 'vendor';
+            }
+          }
+          if (id.includes('/src/shared/')) {
+            return 'shared';
+          }
+        },
+      },
+    },
+  },
+});
+```
+
+Each window gets its own bundle. React, Zustand, utilities get split into shared chunks. Overlay and desktop share the same vendor code instead of bundling it twice.
+
+---
+
+Biggest adjustment was thinking in multiple windows instead of one SPA. Background coordinates, everything else renders. Once that clicked, the rest fell into place.
+
+The callback wrappers were boring to write but I'm glad I did them first. Would have been a mess otherwise.
+
+[Part 1](/blog/kurast-trade-convex-patterns) covers the Convex backend.
+
+[kurast.trade](https://kurast.trade)

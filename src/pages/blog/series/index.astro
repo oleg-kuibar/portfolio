@@ -1,0 +1,60 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SeriesCard } from '@/components/react/SeriesCard';
+import { getAllSeries } from '@/lib/series';
+import { formatDate } from '@/lib/utils';
+
+const allSeries = await getAllSeries();
+---
+
+<BaseLayout
+  title="Blog Series | Oleg Kuibar"
+  description="Multi-part blog series covering in-depth topics in frontend development, architecture, and engineering."
+>
+  <div class="container mx-auto px-4 py-12">
+    <!-- Back link -->
+    <a
+      href="/blog"
+      class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      Back to Blog
+    </a>
+
+    <!-- Header -->
+    <div class="max-w-2xl mb-12">
+      <h1 class="font-heading text-4xl md:text-5xl font-bold mb-4">Blog Series</h1>
+      <p class="text-lg text-muted-foreground">
+        In-depth multi-part series exploring complex topics in detail.
+      </p>
+    </div>
+
+    <!-- Series Grid -->
+    {allSeries.length > 0 ? (
+      <div class="grid md:grid-cols-2 gap-6">
+        {allSeries.map((series) => (
+          <SeriesCard
+            client:load
+            slug={series.slug}
+            name={series.name}
+            description={series.description}
+            postCount={series.postCount}
+            totalReadingTime={series.totalReadingTime}
+            latestDate={formatDate(series.latestDate)}
+            posts={series.posts.map((p) => ({
+              partNumber: p.partNumber,
+              title: p.title,
+              slug: p.slug,
+            }))}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="retro-card text-center py-12">
+        <p class="text-muted-foreground">No series available yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

@@ -4,10 +4,12 @@ import BlogCard from '@/components/astro/BlogCard.astro';
 import { SearchDialog } from '@/components/react/SearchDialog';
 import { CategoryTabs } from '@/components/react/CategoryTabs';
 import { getAllBlogPosts, getFeaturedPosts, getAllCategories, getReadingTime } from '@/lib/blog';
+import { getAllSeries, getSeriesCardInfo } from '@/lib/series';
 
 const posts = await getAllBlogPosts();
 const featuredPosts = await getFeaturedPosts(3);
 const categories = await getAllCategories();
+const allSeries = await getAllSeries();
 
 // Prepare posts data for client-side search
 const postsData = posts.map((post) => ({
@@ -17,6 +19,12 @@ const postsData = posts.map((post) => ({
   category: post.data.category,
   tags: post.data.tags,
 }));
+
+// Pre-compute series info for all posts (using cache for efficiency)
+const postSeriesInfo = new Map<string, Awaited<ReturnType<typeof getSeriesCardInfo>>>();
+for (const post of posts) {
+  postSeriesInfo.set(post.slug, await getSeriesCardInfo(post, allSeries));
+}
 ---
 
 <BaseLayout
@@ -30,6 +38,17 @@ const postsData = posts.map((post) => ({
       <p class="text-lg text-muted-foreground">
         Thoughts on frontend development, system architecture, and engineering leadership.
       </p>
+      {allSeries.length > 0 && (
+        <a
+          href="/blog/series"
+          class="inline-flex items-center gap-1.5 mt-4 text-sm text-primary hover:underline"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+          Browse {allSeries.length} blog series →
+        </a>
+      )}
     </div>
 
     <!-- Search and Filters -->
@@ -53,6 +72,7 @@ const postsData = posts.map((post) => ({
               tags={post.data.tags}
               featured={true}
               readingTime={getReadingTime(post.body || '')}
+              seriesInfo={postSeriesInfo.get(post.slug)}
             />
           ))}
         </div>
@@ -74,6 +94,7 @@ const postsData = posts.map((post) => ({
               tags={post.data.tags}
               featured={post.data.featured}
               readingTime={getReadingTime(post.body || '')}
+              seriesInfo={postSeriesInfo.get(post.slug)}
             />
           ))}
         </div>

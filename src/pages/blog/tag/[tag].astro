@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import BlogCard from '@/components/astro/BlogCard.astro';
 import TagList from '@/components/astro/TagList.astro';
 import { getAllBlogPosts, getAllTags, getReadingTime } from '@/lib/blog';
+import { getAllSeries, getSeriesCardInfo } from '@/lib/series';
 import { slugify } from '@/lib/utils';
 
 export async function getStaticPaths() {
@@ -19,6 +20,13 @@ const posts = allPosts.filter((post) =>
   post.data.tags.some((t) => t.toLowerCase() === tagName.toLowerCase())
 );
 const allTags = await getAllTags();
+const allSeries = await getAllSeries();
+
+// Pre-compute series info for posts with this tag
+const postSeriesInfo = new Map<string, Awaited<ReturnType<typeof getSeriesCardInfo>>>();
+for (const post of posts) {
+  postSeriesInfo.set(post.slug, await getSeriesCardInfo(post, allSeries));
+}
 ---
 
 <BaseLayout
@@ -66,6 +74,7 @@ const allTags = await getAllTags();
             tags={post.data.tags}
             featured={post.data.featured}
             readingTime={getReadingTime(post.body || '')}
+            seriesInfo={postSeriesInfo.get(post.slug)}
           />
         ))}
       </div>

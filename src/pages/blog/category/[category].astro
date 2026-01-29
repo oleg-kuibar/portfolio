@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import BlogCard from '@/components/astro/BlogCard.astro';
 import { CategoryTabs } from '@/components/react/CategoryTabs';
 import { getAllBlogPosts, getAllCategories, getReadingTime } from '@/lib/blog';
+import { getAllSeries, getSeriesCardInfo } from '@/lib/series';
 import { slugify } from '@/lib/utils';
 
 export async function getStaticPaths() {
@@ -17,6 +18,13 @@ const { categoryName } = Astro.props;
 const allPosts = await getAllBlogPosts();
 const posts = allPosts.filter((post) => post.data.category === categoryName);
 const categories = await getAllCategories();
+const allSeries = await getAllSeries();
+
+// Pre-compute series info for posts in this category
+const postSeriesInfo = new Map<string, Awaited<ReturnType<typeof getSeriesCardInfo>>>();
+for (const post of posts) {
+  postSeriesInfo.set(post.slug, await getSeriesCardInfo(post, allSeries));
+}
 ---
 
 <BaseLayout
@@ -63,6 +71,7 @@ const categories = await getAllCategories();
             tags={post.data.tags}
             featured={post.data.featured}
             readingTime={getReadingTime(post.body || '')}
+            seriesInfo={postSeriesInfo.get(post.slug)}
           />
         ))}
       </div>

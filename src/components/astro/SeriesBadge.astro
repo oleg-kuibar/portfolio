@@ -1,0 +1,29 @@
+---
+interface Props {
+  partNumber: number;
+  totalParts: number;
+  seriesSlug: string;
+  compact?: boolean;
+}
+
+const { partNumber, totalParts, seriesSlug, compact = false } = Astro.props;
+---
+
+{compact ? (
+  <span class="inline-flex items-center gap-1 text-xs font-medium bg-secondary/10 text-secondary px-2 py-0.5 rounded">
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+    </svg>
+    Part {partNumber}/{totalParts}
+  </span>
+) : (
+  <a
+    href={`/blog/series/${seriesSlug}`}
+    class="inline-flex items-center gap-1.5 text-xs font-medium bg-secondary/10 text-secondary hover:bg-secondary/20 px-2 py-0.5 rounded transition-colors"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+    </svg>
+    Part {partNumber} of {totalParts}
+  </a>
+)}

@@ -1,8 +1,12 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import CategoryBadge from '@/components/astro/CategoryBadge.astro';
+import SeriesBadge from '@/components/astro/SeriesBadge.astro';
 import TagList from '@/components/astro/TagList.astro';
+import { SeriesNav } from '@/components/react/SeriesNav';
+import { SeriesNavButtons } from '@/components/react/SeriesNavButtons';
 import { formatDate } from '@/lib/utils';
+import type { SeriesInfo } from '@/lib/series';
 
 interface Props {
   title: string;
@@ -12,9 +16,15 @@ interface Props {
   category: string;
   tags: string[];
   readingTime?: string;
+  seriesInfo?: SeriesInfo | null;
 }
 
-const { title, description, date, author, category, tags, readingTime } = Astro.props;
+const { title, description, date, author, category, tags, readingTime, seriesInfo } = Astro.props;
+
+// Calculate previous/next posts by array index (not part number)
+const currentIndex = seriesInfo?.posts.findIndex(p => p.partNumber === seriesInfo.currentPart) ?? -1;
+const prevPost = currentIndex > 0 ? seriesInfo?.posts[currentIndex - 1] : null;
+const nextPost = seriesInfo && currentIndex < seriesInfo.posts.length - 1 ? seriesInfo.posts[currentIndex + 1] : null;
 ---
 
 <BaseLayout title={`${title} | Oleg Kuibar`} description={description} article={true}>
@@ -29,6 +39,28 @@ const { title, description, date, author, category, tags, readingTime } = Astro.
       </svg>
       Back to Blog
     </a>
+
+    <!-- Series indicator -->
+    {seriesInfo && (
+      <div class="retro-card mb-8 bg-secondary/5">
+        <div class="flex flex-wrap items-center gap-3 mb-2">
+          <SeriesBadge
+            partNumber={seriesInfo.currentPart}
+            totalParts={seriesInfo.totalParts}
+            seriesSlug={seriesInfo.slug}
+          />
+          <span class="text-sm text-muted-foreground">
+            {seriesInfo.totalReadingTime} for full series
+          </span>
+        </div>
+        <a
+          href={`/blog/series/${seriesInfo.slug}`}
+          class="text-sm text-primary hover:underline"
+        >
+          View all parts in "{seriesInfo.name}" →
+        </a>
+      </div>
+    )}
 
     <!-- Header -->
     <header class="mb-8">
@@ -61,6 +93,18 @@ const { title, description, date, author, category, tags, readingTime } = Astro.
       <slot />
     </div>
 
+    <!-- Series navigation footer -->
+    {seriesInfo && seriesInfo.posts.length > 1 && (prevPost || nextPost) && (
+      <div class="mt-12 pt-8 border-t border-border">
+        <h2 class="text-sm font-medium text-muted-foreground mb-4">Continue Reading</h2>
+        <SeriesNavButtons
+          client:load
+          prevPost={prevPost}
+          nextPost={nextPost}
+        />
+      </div>
+    )}
+
     <!-- Tags -->
     {tags.length > 0 && (
       <footer class="mt-12 pt-8 border-t border-border">
@@ -69,4 +113,17 @@ const { title, description, date, author, category, tags, readingTime } = Astro.
       </footer>
     )}
   </article>
+
+  <!-- Floating series navigation (desktop only) -->
+  {seriesInfo && (
+    <SeriesNav
+      client:load
+      seriesSlug={seriesInfo.slug}
+      seriesName={seriesInfo.name}
+      currentPart={seriesInfo.currentPart}
+      totalParts={seriesInfo.totalParts}
+      posts={seriesInfo.posts}
+      totalReadingTime={seriesInfo.totalReadingTime}
+    />
+  )}
 </BaseLayout>

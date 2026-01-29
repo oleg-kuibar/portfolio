@@ -1,0 +1,314 @@
+---
+title: "Building kurast.trade Part 1: Real-Time Marketplace Patterns with Convex"
+description: "Patterns for building real-time marketplaces with Convex that go beyond the docs: trade state machines, hash-based change detection, race condition mitigation, and strategic denormalization."
+date: "2025-01-29"
+author: "Oleg Kuibar"
+tags: ["convex", "real-time", "marketplace", "diablo-4", "architecture"]
+category: "Architecture"
+featured: true
+draft: false
+series: "building-kurast-trade"
+seriesPart: 1
+seriesDescription: "A deep dive into building a real-time marketplace with Convex and an Overwolf in-game overlay."
+---
+
+# Building kurast.trade Part 1: Real-Time Marketplace Patterns with Convex
+
+I wanted to learn Convex properly. Not another todo app. Something with real complexity: concurrent users, state machines, data sync.
+
+Around the same time, I was frustrated with Diablo 4 trading. The existing marketplace had UX issues that made trading painful. (Credit to [diablo.trade](https://diablo.trade) for their work though. They've since shipped a much better UI.)
+
+So I built [kurast.trade](https://kurast.trade) as a learning project.
+
+The Convex docs taught me reactive queries. Optimistic updates. All the good stuff. Shipping an actual marketplace? That taught me when *not* to use them.
+
+## Trade State Machine
+
+A marketplace lives or dies by one rule: "completed" trades can't flip back to "negotiating." When real money changes hands (or valuable virtual items), invalid state transitions are how you get scammed.
+
+Without validation, a bad actor marks a trade complete, receives items, then reverts to negotiating. Or cancels after you've handed over the goods. Or exploits timing between state changes.
+
+The fix is boring. Define valid transitions explicitly:
+
+```typescript
+const VALID_TRADE_TRANSITIONS: Record<TradeStatus, TradeStatus[]> = {
+  'negotiating': ['agreed', 'cancelled'],
+  'agreed': ['completed', 'cancelled'],
+  'completed': [], // Terminal state
+  'cancelled': []  // Terminal state
+}
+
+function validateTradeTransition(
+  currentStatus: TradeStatus,
+  targetStatus: TradeStatus
+): void {
+  const validTargets = VALID_TRADE_TRANSITIONS[currentStatus]
+  if (!validTargets.includes(targetStatus)) {
+    throw new Error(
+      `Invalid trade state transition: cannot go from '${currentStatus}' to '${targetStatus}'`
+    )
+  }
+}
+```
+
+<Mermaid chart={`
+stateDiagram-v2
+    [*] --> negotiating
+    negotiating --> agreed: Both parties accept
+    negotiating --> cancelled: Either party cancels
+    agreed --> completed: Trade executed
+    agreed --> cancelled: Either party cancels
+    completed --> [*]
+    cancelled --> [*]
+`} />
+
+Those empty arrays for `completed` and `cancelled`? Not defensive coding. That's the whole fraud prevention mechanism. Once a trade hits a terminal state: no modifications, immutable audit trail, clear resolution for disputes.
+
+Every mutation touching trade status calls `validateTradeTransition()` *before* writing anything. Convex's transactional mutations handle the atomicity.
+
+## Hash-Based Change Detection
+
+kurast.trade pulls game data (items, affixes, class info) from external APIs every hour. Naive approach: fetch everything, write everything.
+
+90%+ of that data hasn't changed since the last sync.
+
+I was writing 10,000+ documents hourly when maybe 500 actually needed updates. Wasted database operations. Wasted bandwidth. Wasteful.
+
+Hash the incoming data. Compare against what's stored. Write only when different:
+
+```typescript
+export async function generateDataHash(data: unknown): Promise<string> {
+  // Normalize data for consistent hashing
+  let normalized: string
+  if (typeof data !== 'object' || data === null) {
+    normalized = JSON.stringify(data)
+  } else {
+    // Sort keys for deterministic hashing
+    normalized = JSON.stringify(
+      data,
+      Object.keys(data as Record<string, unknown>).sort()
+    )
+  }
+
+  // Web Crypto API is available in Convex runtime
+  const encoder = new TextEncoder()
+  const dataBuffer = encoder.encode(normalized)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer)
+
+  // Convert ArrayBuffer to hex string
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+export async function hasDataChanged(
+  ctx: MutationCtx,
+  source: string,
+  dataType: string,
+  newHash: string,
+  realm?: 'season' | 'eternal' | 'ptr',
+  gameMode?: 'softcore' | 'hardcore'
+): Promise<boolean> {
+  let query = ctx.db
+    .query('gameDataVersions')
+    .withIndex('by_source_type_realm_mode', (q) =>
+      q.eq('source', source).eq('dataType', dataType)
+    )
+
+  if (realm) {
+    query = query.filter((q) => q.eq(q.field('realm'), realm))
+  }
+  if (gameMode) {
+    query = query.filter((q) => q.eq(q.field('gameMode'), gameMode))
+  }
+
+  const existing = await query.first()
+
+  if (!existing) {
+    return true // No existing version, needs creation
+  }
+
+  return existing.dataHash !== newHash
+}
+```
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Writes per sync | ~10,000 | ~2,000 |
+| Sync duration | 45s | 12s |
+| Database operations saved | - | **80%** |
+
+One gotcha: sort object keys before hashing. `{a: 1, b: 2}` and `{b: 2, a: 1}` produce different hashes even though they're semantically identical. JSON serialization order will burn you.
+
+## Race Conditions in Chat
+
+Real-time chat with denormalized counts creates a classic race condition. Two messages sent at the same instant? Your unread count gets corrupted.
+
+```typescript
+// DON'T DO THIS
+const session = await ctx.db.get(sessionId)
+await insertMessage(...)
+await ctx.db.patch(sessionId, {
+  unreadCount: session.unreadCount + 1  // Race condition!
+})
+```
+
+Between reading `session` and writing the patch, another message arrives. Both mutations read the same count, both increment by 1, you lose a count.
+
+Quick fix: re-fetch right before patching.
+
+```typescript
+// Insert the message first
+await ctx.db.insert('chatMessages', {
+  sessionId: args.chatSessionId,
+  senderId: userId,
+  content: sanitizedContent,
+  // ... other fields
+})
+
+// Re-fetch the session just before patching to reduce race window
+const latestSession = await ctx.db.get(args.chatSessionId)
+if (!latestSession) {
+  throw new Error('Session not found after sending message')
+}
+
+const unreadUpdate = isBuyer
+  ? { sellerUnreadCount: latestSession.sellerUnreadCount + 1 }
+  : { buyerUnreadCount: latestSession.buyerUnreadCount + 1 }
+
+await ctx.db.patch(args.chatSessionId, {
+  lastMessageAt: Date.now(),
+  lastMessagePreview: sanitizedContent.slice(0, 50),
+  ...unreadUpdate,
+})
+```
+
+For critical counts, skip incrementing entirely. Query the source of truth:
+
+```typescript
+// Count unread messages directly - cannot drift
+const unreadCount = await ctx.db
+  .query('chatMessages')
+  .withIndex('by_session', q => q.eq('sessionId', sessionId))
+  .filter(q => q.and(
+    q.eq(q.field('isRead'), false),
+    q.neq(q.field('senderId'), userId)
+  ))
+  .collect()
+  .then(messages => messages.length)
+```
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| Increment | Fast, single write | Can drift, race conditions |
+| Re-fetch then patch | Smaller race window | Still possible to drift |
+| Recalculate | Always accurate | Extra query, slower |
+
+I use re-fetch for message previews. If those drift, nobody notices. Unread counts? Those I recalculate. Drift there means missed messages.
+
+## Strategic Denormalization
+
+Convex makes reactive queries easy. Too easy.
+
+Without denormalization, a listing card needs 4 queries: the listing, the seller, the seller's online status, their verification badge. 50 listings per page × 4 queries = 200 reactive subscriptions.
+
+| Denormalize When | Keep Normalized When |
+|------------------|---------------------|
+| Data shown in lists/cards | Data only shown in detail views |
+| Rarely changes | Frequently changes |
+| Stale data is acceptable | Must always be current |
+| High read-to-write ratio | Low read-to-write ratio |
+
+The schema:
+
+```typescript
+listings: defineTable({
+  // Seller (normalized - references users table)
+  sellerId: v.id('users'),
+
+  // Seller display info (denormalized - prevents N+1 queries)
+  sellerName: v.optional(v.string()),
+  sellerIsOnline: v.optional(v.boolean()),
+  sellerIsVerified: v.optional(v.boolean()),
+  // ...
+})
+```
+
+When a user changes their name, you update all their listings. Batch operations help:
+
+```typescript
+async function batchGetUsers(
+  ctx: { db: { get: (id: Id<'users'>) => Promise<any> } },
+  userIds: Id<'users'>[]
+): Promise<Map<Id<'users'>, any>> {
+  const uniqueIds = Array.from(new Set(userIds))
+  const users = await Promise.all(uniqueIds.map(id => ctx.db.get(id)))
+  const userMap = new Map<Id<'users'>, any>()
+
+  for (let i = 0; i < uniqueIds.length; i++) {
+    if (users[i]) {
+      userMap.set(uniqueIds[i], users[i])
+    }
+  }
+
+  return userMap
+}
+```
+
+Deduplicating IDs means you fetch each user once instead of hitting the same ID three times on one page.
+
+## Dynamic Index Selection
+
+Convex makes you declare indexes upfront. Which index to use at runtime depends on what filters the user picked. Conditional selection based on selectivity:
+
+```typescript
+let query
+if (backendRealm && args.gameMode) {
+  // Most selective: composite index
+  query = ctx.db.query('listings').withIndex('by_status_realm_gameMode', q =>
+    q.eq('status', 'active').eq('realm', backendRealm).eq('gameMode', args.gameMode!)
+  )
+} else if (args.rarity) {
+  // High selectivity: rarity narrows results significantly
+  query = ctx.db.query('listings').withIndex('by_status_rarity', q =>
+    q.eq('status', 'active').eq('rarity', args.rarity!)
+  )
+  // Apply remaining filters manually
+  if (backendRealm) {
+    query = query.filter(q => q.eq(q.field('realm'), backendRealm))
+  }
+} else if (args.classReq) {
+  // Medium selectivity: class requirement
+  query = ctx.db.query('listings').withIndex('by_status_classReq', q =>
+    q.eq('status', 'active').eq('classReq', args.classReq!)
+  )
+} else {
+  // Fallback: least selective index
+  query = ctx.db.query('listings').withIndex('by_status', q => q.eq('status', 'active'))
+}
+```
+
+Order by selectivity. A composite index on `(status, realm, gameMode)` eliminates more rows than `(status)` alone. Pick the most selective index available, then filter the smaller result set.
+
+## Rate Limiting
+
+Rate limiting is well-documented in the [Convex rate limiter component](https://www.convex.dev/components/rate-limiter). The *strategy* matters more than the implementation:
+
+| Operation Type | Algorithm | Why |
+|----------------|-----------|-----|
+| Organic actions (chat, listings) | Token bucket | Allows burst, smooth average |
+| Expensive operations (OCR) | Fixed window | Hard cost ceiling |
+| Auth attempts | Token bucket with low capacity | Prevents brute force, allows retries |
+
+Token bucket smooths legitimate spikes. Someone posting 5 items quickly shouldn't get throttled. Fixed window creates hard limits for operations that cost you per call.
+
+---
+
+The state machine pattern turned out to be my favorite discovery. Once both parties agree, the trade moves to `agreed`. From there: `completed` or `cancelled`. Never back to `negotiating`. No sneaky edits possible.
+
+That's what building something real teaches you. The docs cover reactive queries. Shipping software teaches you when to reach for a state machine instead.
+
+[kurast.trade](https://kurast.trade)
+
+---
+
+*Part 2 covers building an in-game overlay with the Overwolf platform.*
