@@ -1,6 +1,6 @@
 # Portfolio Website
 
-Personal portfolio website for Oleg Kuibar, Staff Frontend Engineer. Built with Astro, React, and Tailwind CSS v4.
+Personal portfolio website for Oleg Kuibar, Software Engineer. Built with Astro, React, and Tailwind CSS v4.
 
 ## Tech Stack
 
