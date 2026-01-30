@@ -124,7 +124,7 @@ export function SearchDialog({ posts }: SearchDialogProps) {
               ) : filteredPosts.length === 0 ? (
                 <div
                   className="relative aspect-[3/2] bg-cover bg-center bg-no-repeat dark:invert"
-                  style={{ backgroundImage: 'url(/no-posts.png)' }}
+                  style={{ backgroundImage: 'url(/no-posts.jpg)' }}
                 >
                   <p
                     className="absolute right-[12%] bottom-[22%] text-xl font-medium text-accent dark:invert rotate-[-5deg] max-w-[8ch] truncate"
