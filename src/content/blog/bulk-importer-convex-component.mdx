@@ -1,0 +1,421 @@
+---
+title: "I Built a Convex Component to Stop Writing the Same Import Code"
+description: "Hash-based change detection, automatic upserts, and sync tracking — packaged as a reusable Convex component."
+date: "2026-02-08"
+tags: ["convex", "open-source", "data-sync", "components"]
+category: "Backend"
+featured: true
+draft: false
+---
+
+# I Built a Convex Component to Stop Writing the Same Import Code
+
+In [kurast.trade Part 1](/blog/kurast-trade-convex-patterns), I wrote about hash-based change detection for syncing game data. Hash incoming data, compare it to what's stored, skip the write if nothing changed. It worked. Then I needed it in five different mutations.
+
+The item sync needed it. The affix sync needed it. Class data, realm-specific drops, seasonal balance patches. Every sync mutation had the same ~30 lines of boilerplate: generate a hash, query the versions table, compare, upsert each document, record the new hash.
+
+Here's what one of those mutations looked like — toggle to see what I wanted instead:
+
+<CodeBeforeAfter />
+
+Multiply that by five sync mutations. Each one slightly different (different tables, different indexes, different fields), but the *structure* was identical every time.
+
+That's the entire mutation. Hashing, change detection, upserts, unchanged-document skipping, version tracking. The five sync mutations in kurast.trade went from ~150 lines of duplicated logic to ~50 lines of configuration.
+
+So I extracted the pattern into [`@convex-dev/bulk-importer`](https://www.npmjs.com/package/@convex-dev/bulk-importer), a reusable Convex component.
+
+## What Convex Components Are (and Why This Is One)
+
+If you're not deep in the Convex ecosystem: [Convex components](https://convex.dev/components) are self-contained packages that bundle their own tables, functions, and indexes. They install into your Convex app but run in an isolated context. A component can't accidentally read or modify your app's tables, and your app can't touch the component's internal tables.
+
+The bulk importer needs a `syncVersions` table to track what was synced, when, and with what hash. That's bookkeeping data. It doesn't belong in your app's schema. As a component, the table is isolated automatically. You never define it, there are no name collisions, and the component versions independently from your app.
+
+But the upsert logic (finding existing documents by index, inserting or patching) needs access to *your* app's tables. A pure component can't do that.
+
+So it's a hybrid. The component owns state tracking: hashes, versions, timestamps. The `BulkImporter` client class runs in your mutation context, where it has full `ctx.db` access to your app's tables.
+
+<Mermaid chart={`
+flowchart LR
+    subgraph App["Your App Context"]
+        M[Mutation handler]
+        BI[BulkImporter class]
+        DB[(App tables<br/>items, products, ...)]
+    end
+    subgraph Comp["Component Context (isolated)"]
+        SV[(syncVersions table)]
+        CH[checkHash]
+        RS[recordSync]
+    end
+    M --> BI
+    BI -->|upsert via ctx.db| DB
+    BI -->|hash check| CH
+    BI -->|record version| RS
+    CH --> SV
+    RS --> SV
+`} />
+
+Setup is three lines. Register the component in your Convex config:
+
+```typescript
+// convex/convex.config.ts
+import { defineApp } from "convex/server";
+import bulkImporter from "@convex-dev/bulk-importer/convex.config.js";
+
+const app = defineApp();
+app.use(bulkImporter);
+export default app;
+```
+
+Then instantiate the client:
+
+```typescript
+// convex/imports.ts
+import { BulkImporter } from "@convex-dev/bulk-importer";
+import { components } from "./_generated/api.js";
+
+export const importer = new BulkImporter(components.bulkImporter);
+```
+
+Use that `importer` in any mutation.
+
+## Hash-Based Change Detection
+
+The kurast.trade version of `generateDataHash` had a problem I flagged in Part 1:
+
+> One gotcha: sort object keys before hashing. `{a: 1, b: 2}` and `{b: 2, a: 1}` produce different hashes even though they're semantically identical. JSON serialization order will burn you.
+
+The original code sorted top-level keys with `JSON.stringify(data, Object.keys(data).sort())`. That worked for flat objects, but game data isn't flat. Items have nested affix objects, arrays of stat rolls, deeply nested skill trees.
+
+The component handles this with `sortKeysDeep`, a recursive function that normalizes key order at every nesting level:
+
+```typescript
+function sortKeysDeep(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(sortKeysDeep);
+  }
+  if (typeof value === "object" && value !== null) {
+    const sorted: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      sorted[key] = sortKeysDeep((value as Record<string, unknown>)[key]);
+    }
+    return sorted;
+  }
+  return value;
+}
+```
+
+Arrays get traversed (each element sorted), objects get their keys sorted recursively, primitives pass through. The normalized structure is `JSON.stringify`'d and SHA-256 hashed using the Web Crypto API in the Convex runtime.
+
+Worth understanding why this matters: JavaScript objects don't guarantee property order in all contexts. I hit this again during development. Your upstream API returns `{ name: "sword", type: "weapon" }` on one call and `{ type: "weapon", name: "sword" }` on the next. Without key sorting, those produce different hashes and you're triggering a full re-import for identical data. `sortKeysDeep` kills this class of bug.
+
+<HashExplorer />
+
+On every `import()` call, the component hashes the incoming data, looks up the stored hash for that `(source, dataType, namespace)` combination, and compares. If the hashes match, it short-circuits and returns `{ skipped: data.length }`. The upsert loop only runs when data actually changed.
+
+Every Convex database write costs [function execution time and bandwidth](https://docs.convex.dev/production/state/limits). If you're syncing 10,000 items hourly and 90% haven't changed, you're paying for 9,000 unnecessary writes. The hash check turns that into a single comparison. Nothing changed? Zero writes.
+
+From the kurast.trade sync:
+
+| Metric | Before (inline) | After (component) |
+|--------|-----------------|-------------------|
+| Writes per sync (unchanged data) | ~10,000 | 0 |
+| Writes per sync (changed data) | ~10,000 | ~500 (only changed docs) |
+| Sync duration (unchanged) | 45s | &lt;1s |
+| Database operations saved | — | **95%+** |
+
+The second row matters. Even when data *has* changed, the component's individual document comparison (more on that next) means only actually-modified documents get patched.
+
+## The Upsert Loop
+
+When the batch hash says something changed, the `import()` method enters its upsert loop. Here's what happens to each item — try stepping through the interactive simulation:
+
+<ImportFlowViz />
+
+Here's the full decision tree for reference:
+
+<Mermaid chart={`
+flowchart TD
+    Start([import called]) --> HC{Batch hash<br/>changed?}
+    HC -->|No| Skip[Return skipped count]
+    HC -->|Yes| Loop[For each item]
+    Loop --> TX{Transform<br/>provided?}
+    TX -->|Yes| Apply[Apply transform]
+    TX -->|No| Raw[Use raw item]
+    Apply --> Find
+    Raw --> Find
+    Find[Find by index] --> Exists{Document<br/>exists?}
+    Exists -->|No| SC{skipCreates?}
+    SC -->|Yes| SkipC[Skip + count]
+    SC -->|No| OC{onCreate<br/>hook?}
+    OC -->|Yes| ApplyOC[Apply onCreate]
+    OC -->|No| Ins[Insert document]
+    ApplyOC --> Ins
+    Exists -->|Yes| SU{skipUpdates or<br/>onConflict skip?}
+    SU -->|Yes| SkipU[Skip + count]
+    SU -->|No| UF{updateFields<br/>set?}
+    UF -->|Yes| Pick[Pick specified fields]
+    UF -->|No| Full[Use full doc]
+    Pick --> SE{shallowEqual<br/>to existing?}
+    Full --> SE
+    SE -->|Yes| Unch[Count as unchanged]
+    SE -->|No| OU{onUpdate<br/>hook?}
+    OU -->|Yes| ApplyOU[Apply onUpdate]
+    OU -->|No| Patch[Patch document]
+    ApplyOU --> Patch
+    Ins --> Next
+    Patch --> Next
+    SkipC --> Next
+    SkipU --> Next
+    Unch --> Next
+    Next[Next item] --> Loop
+    Loop --> DS{deleteStale?}
+    DS -->|Yes| Del[Delete unprocessed docs<br/>within namespace]
+    DS -->|No| Rec[Record sync version]
+    Del --> Rec
+    Rec --> Done([Return ImportResult])
+`} />
+
+The important thing here is that the batch hash changing doesn't mean every document changed. Maybe one item out of 10,000 got a price update. The SHA-256 hash covers the entire array, so any change makes it different. But then `shallowEqual` catches you at the individual document level: for each document, it compares the patch fields against what's already stored. If they match, no write. So you get two layers of protection. The batch hash skips entire syncs that haven't changed. `shallowEqual` skips individual documents within a changed batch.
+
+One thing to know about `shallowEqual`: it compares with `!==`, which is reference comparison. For strings and numbers, that's fine. For nested objects, `{ stats: { str: 10 } }` always triggers a patch because the nested object is a new reference even if the values are identical. I could have done deep equality, but checking every nested field on every document on every sync gets expensive. If you have deeply nested data that rarely changes, flatten the fields you care about into top-level keys.
+
+The `findByIndex` method builds index queries dynamically. You give it the index name and key values, it chains `.eq()` calls:
+
+```typescript
+private async findByIndex(ctx, table, indexName, keys) {
+  const query = ctx.db.query(table).withIndex(indexName, (q) => {
+    let builder = q;
+    for (const key of keys) {
+      builder = builder.eq(key);
+    }
+    return builder;
+  });
+  return await query.first();
+}
+```
+
+Compound indexes work naturally. `getIndexKeys: (item) => [item.name, item.realm]` produces two `.eq()` calls that match the index field order.
+
+I also added an empty-data guard at the top of `import()` after learning the hard way:
+
+```typescript
+if (data.length === 0 && !deleteStale) {
+  return { created: 0, updated: 0, unchanged: 0, skipped: 0, deleted: 0, hash: "" };
+}
+```
+
+If your upstream API has a bad day and returns an empty array, you don't want to record that as a successful sync with hash `""`. The next real sync would see a different hash and think everything changed. And if `deleteStale` is on? Empty import + delete stale = every document gone. The guard catches this.
+
+### Game Data Sync with Compound Indexes
+
+Here's how the kurast.trade item sync looks with the component. Note the compound index and namespace scoping:
+
+```typescript
+export const syncItems = mutation({
+  args: {
+    items: v.array(v.object({
+      name: v.string(),
+      type: v.string(),
+      rarity: v.string(),
+      stats: v.any(),
+    })),
+    realm: v.union(v.literal("season"), v.literal("eternal")),
+    gameMode: v.union(v.literal("softcore"), v.literal("hardcore")),
+  },
+  handler: async (ctx, { items, realm, gameMode }) => {
+    return await importer.import(ctx, {
+      source: "d4data",
+      dataType: "items",
+      data: items,
+      upsert: {
+        table: "items",
+        index: "by_name_realm",
+        getIndexKeys: (item) => [item.name, realm],
+        toDoc: (item) => ({
+          ...item,
+          realm,
+          gameMode,
+          lastSyncedAt: Date.now(),
+        }),
+      },
+      options: {
+        namespace: { realm, gameMode },
+      },
+    });
+  },
+});
+```
+
+The `namespace: { realm, gameMode }` means this sync's hash is stored separately for each realm/mode combination. Season softcore and eternal hardcore each have their own sync version. A change in one doesn't force a re-import of the other.
+
+One thing that will bite you: index key order in `getIndexKeys` must match the field order in the index definition. If your index is `by_name_realm` with fields `["name", "realm"]`, you need `[item.name, realm]`, not `[realm, item.name]`. Get it backwards and the lookup silently returns no matches. Every item gets inserted as new instead of matching existing docs. You'll see `created: 10000, updated: 0` and wonder why you have duplicates everywhere.
+
+### CMS Content with Lifecycle Hooks
+
+A different use case: CMS content sync where you want different behavior for new vs updated posts:
+
+```typescript
+export const syncBlogPosts = mutation({
+  args: {
+    posts: v.array(v.object({
+      slug: v.string(),
+      title: v.string(),
+      body: v.string(),
+      author: v.string(),
+      locale: v.string(),
+    })),
+    locale: v.string(),
+  },
+  handler: async (ctx, { posts, locale }) => {
+    return await importer.import(ctx, {
+      source: "cms",
+      dataType: "posts",
+      data: posts,
+      upsert: {
+        table: "posts",
+        index: "by_slug_locale",
+        getIndexKeys: (post) => [post.slug, post.locale],
+        toDoc: (post) => ({ ...post }),
+        updateFields: ["title", "body", "author"],
+        onCreate: (doc) => ({
+          ...doc,
+          status: "draft",
+          createdAt: Date.now(),
+          publishedAt: undefined,
+        }),
+        onUpdate: (doc, existing) => ({
+          ...doc,
+          revision: ((existing.revision as number) ?? 0) + 1,
+          lastEditedAt: Date.now(),
+        }),
+      },
+      options: {
+        namespace: { locale },
+        deleteStale: true,
+      },
+    });
+  },
+});
+```
+
+New posts come in as `status: "draft"` with a `createdAt` timestamp. Updates bump a revision counter and set `lastEditedAt`. The `updateFields: ["title", "body", "author"]` is the part I like most here: the import never touches `status` or `publishedAt` or anything else the app manages. The CMS owns the content, the app owns the workflow.
+
+## Stale Deletion and Namespace Scoping
+
+Sometimes the source is authoritative. If an item isn't in the incoming data, it should be gone. That's what `deleteStale` does.
+
+But here's where I almost caused a production incident. Say you sync English blog posts with `deleteStale: true`. Without scoping, the deletion pass queries *all* posts in the table and deletes anything not in the English batch. Every French post, every Spanish post, gone.
+
+<NamespaceViz />
+
+`namespace` prevents this. Pass `namespace: { locale: "en-US" }` and stale deletion only touches documents where `locale === "en-US"`:
+
+```typescript
+// Sync English posts — only deletes stale English posts
+await importer.import(ctx, {
+  source: "cms",
+  dataType: "posts",
+  data: englishPosts,
+  upsert: {
+    table: "posts",
+    index: "by_slug_locale",
+    getIndexKeys: (post) => [post.slug, "en-US"],
+    toDoc: (post) => ({ ...post, locale: "en-US" }),
+  },
+  options: {
+    namespace: { locale: "en-US" },
+    deleteStale: true,
+  },
+});
+
+// French posts are untouched — different namespace
+await importer.import(ctx, {
+  source: "cms",
+  dataType: "posts",
+  data: frenchPosts,
+  upsert: {
+    table: "posts",
+    index: "by_slug_locale",
+    getIndexKeys: (post) => [post.slug, "fr-FR"],
+    toDoc: (post) => ({ ...post, locale: "fr-FR" }),
+  },
+  options: {
+    namespace: { locale: "fr-FR" },
+    deleteStale: true,
+  },
+});
+```
+
+Under the hood, it collects all document IDs processed during the upsert loop, then queries the table with namespace filters. Anything not in the processed set gets deleted:
+
+```typescript
+private async deleteStale(ctx, table, processedIds, namespace) {
+  let query = ctx.db.query(table);
+
+  if (namespace) {
+    for (const [key, value] of Object.entries(namespace)) {
+      if (value === null || value === undefined) continue;
+      query = query.filter((q) => q.eq(q.field(key), value));
+    }
+  }
+
+  const allDocs = await query.collect();
+  let deleted = 0;
+
+  for (const doc of allDocs) {
+    if (!processedIds.has(doc._id)) {
+      await ctx.db.delete(doc._id);
+      deleted++;
+    }
+  }
+
+  return deleted;
+}
+```
+
+Your documents need the namespace fields actually stored on them (like `locale: "en-US"` on each post). The component filters by those field values to scope what gets deleted.
+
+## Dry Run and Conflict Resolution
+
+Sometimes you want to see what an import *would* do before actually running it.
+
+`dryRun: true` runs the full upsert loop (hash check, index lookups, `shallowEqual` comparisons) but skips all writes and doesn't record a sync version:
+
+```typescript
+const preview = await importer.import(ctx, {
+  source: "stripe",
+  dataType: "products",
+  data: products,
+  upsert: {
+    table: "products",
+    index: "by_stripeId",
+    getIndexKeys: (p) => [p.stripeId],
+    toDoc: (p) => ({ ...p, lastSyncedAt: Date.now() }),
+  },
+  options: {
+    force: true,  // Bypass hash check — always compare
+    dryRun: true, // No writes — just count what would happen
+  },
+});
+
+console.log(preview);
+// { created: 3, updated: 7, unchanged: 90, skipped: 0, deleted: 0, hash: "a1b2..." }
+```
+
+Note the `force: true`. Without it, if the data hash matches the last sync, the import short-circuits before the upsert loop runs. For a meaningful dry run, you usually want to force through the hash check.
+
+There are also conflict resolution modes:
+
+`onConflict: 'skip'` is insert-only mode. If a document already exists by index, leave it alone. Good for CSV imports where you want to add new records without overwriting manual edits. `skipUpdates: true` does the same thing, just reads differently in code.
+
+`skipCreates: true` is the opposite: update-only mode. If no existing document matches the index, skip the item. Good for price feed updates where you only want to touch products already in your catalog.
+
+One last thing: Convex mutations have an [execution time limit](https://docs.convex.dev/production/state/limits). The `import()` call runs within a single mutation transaction, so if you're syncing 50,000 items, you need to chunk them at the action level. Batch into groups of 1,000-5,000 and call the mutation for each chunk. The hash check means chunks with unchanged data skip instantly.
+
+---
+
+Five sync mutations doing the same thing. That was the whole motivation. Now each one is a config object, and I don't think about hashing or version tracking anymore.
+
+[`@convex-dev/bulk-importer`](https://www.npmjs.com/package/@convex-dev/bulk-importer) is on npm and [GitHub](https://github.com/oleg-kuibar/convex-bulk-importer). Apache-2.0.
+
+The [kurast.trade series](/blog/kurast-trade-convex-patterns) has the full origin story if you want to see the patterns that led here.

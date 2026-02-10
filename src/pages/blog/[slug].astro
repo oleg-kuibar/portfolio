@@ -4,6 +4,10 @@ import BlogLayout from '@/layouts/BlogLayout.astro';
 import { getReadingTime } from '@/lib/blog';
 import { getSeriesInfo } from '@/lib/series';
 import Mermaid from '@/components/astro/Mermaid.astro';
+import ImportFlowViz from '@/components/astro/ImportFlowViz.astro';
+import CodeBeforeAfter from '@/components/astro/CodeBeforeAfter.astro';
+import HashExplorer from '@/components/astro/HashExplorer.astro';
+import NamespaceViz from '@/components/astro/NamespaceViz.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -20,6 +24,10 @@ const seriesInfo = await getSeriesInfo(post);
 
 const components = {
   Mermaid,
+  ImportFlowViz,
+  CodeBeforeAfter,
+  HashExplorer,
+  NamespaceViz,
 };
 ---
 
