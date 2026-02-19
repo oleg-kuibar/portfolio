@@ -57,6 +57,43 @@ const aboutCards = [
   title="Oleg Kuibar | Software Engineer"
   description="Portfolio of Oleg Kuibar, a Software Engineer specializing in front-end platform engineering and design systems."
 >
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Oleg Kuibar",
+    "jobTitle": "Software Engineer",
+    "description": "Software Engineer specializing in front-end platform engineering, design systems, and developer experience tooling with over 10 years of experience.",
+    "url": "https://olegkuibar.dev",
+    "sameAs": [
+      heroContent.socialLinks.linkedin,
+      heroContent.socialLinks.github
+    ],
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Float Financial",
+      "url": "https://floatfinancial.com"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Toronto",
+      "addressCountry": "CA"
+    },
+    "knowsAbout": [
+      "Front-end Development",
+      "Platform Engineering",
+      "Design Systems",
+      "React",
+      "TypeScript",
+      "Next.js",
+      "Astro",
+      "Tailwind CSS",
+      "Convex",
+      "Component Libraries",
+      "Monorepos",
+      "Web Performance Optimization",
+      "Developer Experience"
+    ]
+  }).replace(/</g, '\\u003c')} />
   <!-- Hero Section -->
   <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
     <div class="container mx-auto px-4 py-20">

@@ -23,6 +23,7 @@ const { title, description, image, article = false, publishedTime, modifiedTime,
 <html lang="en" class="scroll-smooth">
   <head>
     <BaseHead title={title} description={description} image={image} article={article} publishedTime={publishedTime} modifiedTime={modifiedTime} author={author} tags={tags} />
+    <slot name="head" />
     <script is:inline>
       // Theme initialization - runs before render to prevent flash
       const getThemePreference = () => {

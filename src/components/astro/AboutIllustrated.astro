@@ -5,6 +5,16 @@
 <section id="about" class="py-20 bg-muted/30">
   <div class="container mx-auto px-4">
     <div class="max-w-5xl mx-auto">
+      <!-- Accessible text alternative for the illustrated image -->
+      <div class="sr-only">
+        <h2>About Oleg Kuibar</h2>
+        <p>
+          Software Engineer based in Toronto with over 10 years of experience.
+          Specializes in front-end platform engineering, design systems, and developer tooling
+          at Float Financial. Skills include React, TypeScript, Tailwind CSS, Next.js, Astro, and Convex.
+        </p>
+      </div>
+
       <div class="relative">
         <!-- Tape corners -->
         <div class="tape absolute -top-2 left-12 w-20 h-7 rotate-[-6deg] z-10"></div>
@@ -15,14 +25,14 @@
           href="/about-illustrated.jpg"
           target="_blank"
           rel="noopener noreferrer"
-          class="block relative retro-card p-2 md:p-4 bg-[#f5f3ee] dark:bg-[#2a2520] overflow-hidden md:pointer-events-none md:cursor-default"
+          class="block relative retro-card p-2 md:p-4 bg-[#f5f3ee] dark:bg-[#28231e] overflow-hidden md:pointer-events-none md:cursor-default"
         >
           <!-- Scanlines overlay -->
           <div class="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] z-10 scanlines"></div>
 
           <img
             src="/about-illustrated.jpg"
-            alt="About Me - illustrated overview of my work and journey"
+            alt="Illustrated overview of Oleg Kuibar's career journey — software engineer specializing in front-end platform engineering, design systems, and developer tools, currently at Float Financial in Toronto"
             class="w-full h-auto dark-img"
           />
 
@@ -145,10 +155,11 @@
   }
 
   :global(.dark) .polaroid {
-    background: #2a2520;
+    background: #28231e;
     box-shadow:
-      0 4px 6px rgba(0, 0, 0, 0.3),
-      0 10px 20px rgba(0, 0, 0, 0.25);
+      0 4px 6px rgba(0, 0, 0, 0.35),
+      0 10px 20px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(200, 160, 60, 0.06);
   }
 
   .polaroid:hover {
@@ -159,8 +170,9 @@
 
   :global(.dark) .polaroid:hover {
     box-shadow:
-      0 8px 12px rgba(0, 0, 0, 0.4),
-      0 16px 32px rgba(0, 0, 0, 0.3);
+      0 8px 12px rgba(0, 0, 0, 0.45),
+      0 16px 32px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(200, 160, 60, 0.12);
   }
 
   .polaroid-img {
@@ -170,7 +182,7 @@
   }
 
   :global(.dark) .polaroid-img {
-    background: #3d3530;
+    background: #342e28;
   }
 
   @media (min-width: 768px) {
@@ -190,7 +202,7 @@
   }
 
   :global(.dark) .polaroid-label {
-    color: #e5e5e5;
+    color: #e8dcc8;
   }
 
   .logo-icon {
@@ -207,7 +219,7 @@
   }
 
   :global(.dark) .github-logo {
-    fill: #e5e5e5;
+    fill: #e8dcc8;
   }
 
   :global(.dark) .logo-icon {
