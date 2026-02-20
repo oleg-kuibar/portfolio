@@ -1,0 +1,22 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { PlunkPlayground } from '@/components/react/PlunkPlayground';
+---
+
+<BaseLayout
+  title="plunk — Interactive Demo | Oleg Kuibar"
+  description="Interactive playground for plunk, a local package development tool. Smart file copying into node_modules — no symlinks, no git contamination."
+>
+  <section class="container mx-auto px-4 py-8 max-w-6xl">
+    <a
+      href="/"
+      class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6 font-mono"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M10 12L6 8l4-4" />
+      </svg>
+      Back
+    </a>
+    <PlunkPlayground client:only="react" />
+  </section>
+</BaseLayout>
