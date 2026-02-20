@@ -9,6 +9,11 @@ export interface ThemeColors {
   muted: string;
   border: string;
   background: string;
+  danger: string;
+  dangerMuted: string;
+  success: string;
+  warning: string;
+  info: string;
 }
 
 export function getThemeColors(): ThemeColors {
@@ -22,6 +27,11 @@ export function getThemeColors(): ThemeColors {
     muted: style.getPropertyValue('--color-muted').trim(),
     border: style.getPropertyValue('--color-border').trim(),
     background: style.getPropertyValue('--color-background').trim(),
+    danger: style.getPropertyValue('--color-danger').trim(),
+    dangerMuted: style.getPropertyValue('--color-danger-muted').trim(),
+    success: style.getPropertyValue('--color-success').trim(),
+    warning: style.getPropertyValue('--color-warning').trim(),
+    info: style.getPropertyValue('--color-info').trim(),
   };
 }
 

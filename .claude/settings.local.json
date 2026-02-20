@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx astro build)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_install",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(npx playwright install:*)",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "WebFetch(domain:docs.excalidraw.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebSearch",
+      "WebFetch(domain:bundlephobia.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(npx astro dev:*)",
+      "Bash(npx convex:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run build:codegen:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm add:*)",
+      "WebFetch(domain:stack.convex.dev)",
+      "Bash(node -e:*)",
+      "WebFetch(domain:labs.convex.dev)",
+      "mcp__plugin_playwright_playwright__browser_run_code",
+      "Bash(git add:*)"
+    ]
+  }
+}

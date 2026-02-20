@@ -49,8 +49,8 @@ export function FloatingTailwind() {
           background-position: -4px -4px;
         }
         html.dark .floating-tailwind .stamp-border {
-          background-color: #3d3530;
-          background-image: radial-gradient(circle, transparent 50%, #3d3530 50%);
+          background-color: #342e28;
+          background-image: radial-gradient(circle, transparent 50%, #342e28 50%);
         }
         .floating-tailwind .stamp-inner {
           background: #fefefe;
@@ -62,8 +62,8 @@ export function FloatingTailwind() {
           gap: 4px;
         }
         html.dark .floating-tailwind .stamp-inner {
-          background: #2a2520;
-          border-color: #e5e5e5;
+          background: #28231e;
+          border-color: rgba(200, 160, 60, 0.25);
         }
         .floating-tailwind .stamp-logo {
           width: 40px;
@@ -77,7 +77,7 @@ export function FloatingTailwind() {
           color: #1a1a1a;
         }
         html.dark .floating-tailwind .stamp-text {
-          color: #e5e5e5;
+          color: #e8dcc8;
         }
         .floating-tailwind .stamp-subtext {
           font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
@@ -85,7 +85,7 @@ export function FloatingTailwind() {
           color: #666;
         }
         html.dark .floating-tailwind .stamp-subtext {
-          color: #aaa;
+          color: #a89880;
         }
         .floating-tailwind .external-icon {
           position: absolute;
@@ -101,7 +101,7 @@ export function FloatingTailwind() {
           opacity: 0.4;
         }
         html.dark .floating-tailwind .external-icon {
-          stroke: #e5e5e5;
+          stroke: #e8dcc8;
         }
       `}</style>
     </motion.a>
