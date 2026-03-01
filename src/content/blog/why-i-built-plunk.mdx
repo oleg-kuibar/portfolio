@@ -1,6 +1,6 @@
 ---
-title: "Why I Built plunk: Local Package Dev Without the Symlink Pain"
-description: "npm link breaks module resolution. yalc contaminates git. I built a tool that copies files instead — with incremental hashing, CoW, and Vite integration."
+title: "Why I Built plunk"
+description: "yalc stopped being maintained and broke with pnpm. npm link still breaks React hooks. So I built a tool that copies files straight into node_modules."
 date: "2026-02-19"
 tags: ["tooling", "npm", "pnpm", "local-development", "open-source"]
 category: "DevOps"
@@ -8,21 +8,17 @@ featured: true
 draft: false
 ---
 
-# Why I Built plunk: Local Package Dev Without the Symlink Pain
+# Why I Built plunk
 
-I maintain a shared UI kit used by three apps. Every change to the kit follows the same loop: edit source, rebuild, test in consumer. The testing part is where things fall apart.
+yalc hasn't seen a meaningful update in years. The last release was 2022, the issue tracker is full of unanswered pnpm bugs, and `yalc-watch` (the companion tool for automatic re-pushing) is completely abandoned. For a while I worked around the rough edges. Then pnpm v7.10 shipped, yalc's `file:` protocol injection stopped working with pnpm's content-addressable store, and I had no fallback left.
 
-With `npm link`, React hooks stopped working. Two React instances, one from the library's resolved path and one from the consumer's `node_modules`. `useState` returns undefined. `useContext` can't find the provider. No error message tells you what's actually wrong. The hooks silently break because `instanceof` checks fail across module boundaries.
+I maintain a shared UI kit consumed by three apps. Every change follows the same loop: edit the library, rebuild, test in a consumer app. The tooling for that last step has been broken for years.
 
-So I switched to yalc. It worked until I noticed `.yalc/` directories and rewritten `package.json` entries showing up in pull request diffs. Then pnpm v7.10 landed and yalc stopped working with pnpm's content-addressable store entirely.
+## The npm link trap
 
-I spent a weekend trying to make the existing tools work. By Sunday I was writing my own.
+`npm link` creates a symlink from `node_modules/my-lib` to your local library checkout. Module resolution follows the *real* path (the symlink target), not the logical one inside the consumer.
 
-## What's wrong with symlinks
-
-`npm link` and `pnpm link` create symlinks from `node_modules/my-lib` to your local library checkout. Sounds elegant. In practice, module resolution follows the *real* path (the symlink target), not the logical one.
-
-When your library does `import React from 'react'`, Node resolves it relative to the library's actual directory on disk, not relative to the consumer's `node_modules`. The consumer has its own copy of React. Now you have two React instances in one app.
+When your library does `import React from 'react'`, Node resolves it relative to the library's directory on disk. The consumer has its own React. Now you have two React instances loaded in one app.
 
 ```
 Consumer app
@@ -33,13 +29,15 @@ Consumer app
 │                                └── react/  ← library's React (v18.3.1)
 ```
 
-Same version. Different module instances. React's hooks rely on a shared internal state object. Two instances means two internal states. Hooks silently fail, context can't propagate, `instanceof` returns false for components that should match.
+Same version, different module instances. React hooks depend on a shared internal state object. Two instances means two states. `useState` returns undefined. `useContext` can't find its provider. Nothing in the error output points to the symlink as the cause.
 
-Bundlers make it worse. Vite and Turbopack can't watch files outside the project root by default. Your symlinked library changes? No HMR. You have to manually reload.
+Bundlers add another layer of pain. Vite and Turbopack won't watch files outside the project root by default, so changes to your symlinked library don't trigger HMR.
 
-## What's wrong with yalc
+## yalc: the right idea, abandoned
 
-yalc takes a different approach: it copies your package into a local `.yalc/` directory and rewrites your `package.json` to point there.
+yalc's approach was actually sound: copy files instead of symlinking. But the implementation had two problems that only got worse as it stopped being maintained.
+
+First, it rewrites your `package.json`:
 
 ```json
 {
@@ -49,32 +47,34 @@ yalc takes a different approach: it copies your package into a local `.yalc/` di
 }
 ```
 
-That rewritten `package.json` shows up in git diffs. The `.yalc/` directory needs a `.gitignore` entry. Teammates who clone the repo see unfamiliar paths and ask questions.
+That rewritten entry shows up in git diffs. The `.yalc/` directory needs a gitignore rule. Forget to undo it before pushing and your CI pulls from a path that doesn't exist on the build server.
 
-The deeper problem: yalc broke with pnpm starting around v7.10. pnpm's content-addressable store doesn't play well with `file:` protocol dependencies that point to mutable local directories. The lock file gets confused, integrity checks fail, and `pnpm install` clobbers the yalc injection.
+Second, it broke with pnpm. Starting around pnpm v7.10, the content-addressable store doesn't handle `file:` protocol dependencies pointing to mutable local directories. The lockfile gets confused, integrity checks fail, `pnpm install` clobbers whatever yalc injected. The GitHub issues piled up. Nobody was fixing them.
 
-There's `yalc-watch` for automatic re-pushing, but it's an unmaintained external tool. And every push copies the entire package — no diffing, no skipping unchanged files.
+There's no built-in watch mode. The external `yalc-watch` package hasn't been updated since 2021. Every push copies the entire package from scratch. No diffing, no skipping unchanged files.
 
-## The core idea: just copy the files
+I used yalc for over a year. When pnpm support broke and it became clear the project wasn't going to get fixed, I decided to build something that solves the same problem without the baggage.
 
-pnpm already proved that copying works. Its `injected dependencies` feature copies packages instead of symlinking them. The package lands in `node_modules` as regular files. Module resolution works correctly because there's no symlink to confuse it.
+## plunk: just copy the files
 
-plunk makes this explicit and works across package managers. It adds file watching, incremental copies, bundler cache invalidation, and multi-consumer pushes.
+pnpm's own `injected dependencies` feature already proved that copying works. The package lands in `node_modules` as regular files, module resolution is correct, no symlink confusion.
+
+plunk does this across all package managers. It copies your built library files directly into the consumer's `node_modules/`. No symlinks, no `package.json` rewrites. Everything plunk tracks lives in a gitignored `.plunk/` folder.
 
 | | plunk | npm link | yalc |
 |---|---|---|---|
-| Module resolution | Correct (real files) | Broken (dual instances) | Correct (copied files) |
-| Git contamination | None | None | `.yalc/`, rewritten package.json |
-| pnpm compatible | Yes (writes to `.pnpm/` virtual store) | Partial (symlink issues) | Broken since ~v7.10 |
-| Incremental copy | Yes (xxhash per-file) | N/A (symlink) | No (full copy) |
-| Bundler integration | Vite plugin (full-reload) | Manual reload | None |
-| Multi-consumer | Yes (push to all registered) | Manual per-consumer | Manual per-consumer |
-| Watch mode | Built-in (build + push) | Separate tooling | External (unmaintained) |
-| Rollback | `plunk restore` | `npm unlink` | `yalc remove` |
+| Mechanism | Copy to node_modules | Symlink | Copy + rewrite package.json |
+| Module resolution | Correct | Broken (dual instances) | Correct |
+| Git contamination | None | None | `.yalc/` + rewritten package.json |
+| pnpm support | Full (follows `.pnpm/` symlinks) | Fragile | Broken since ~v7.10 |
+| Incremental sync | xxHash per-file diff | N/A | Full copy every time |
+| Watch mode | Built-in | None | External (abandoned) |
+| Bundler integration | Vite plugin, Next.js cache clear | Manual reload | None |
+| Survives npm install | `plunk restore` via postinstall | No | No |
 
-## How it works: three layers
+## How it works
 
-plunk has three core layers: a store that caches packages, a publisher that writes to the store, and an injector that copies from the store into consumers.
+Internally, plunk splits the work into publishing (library to store) and injecting (store to consumer's node_modules).
 
 <Mermaid chart={`
 flowchart LR
@@ -97,27 +97,69 @@ flowchart LR
     S --> B
     B -->|"plunk publish"| SE
     SE --> M
-    SE -->|"plunk inject"| NM1
-    SE -->|"plunk inject"| NM2
+    SE -->|"plunk add"| NM1
+    SE -->|"plunk add"| NM2
     NM1 -.- SF1
     NM2 -.- SF2
 `} />
 
-The store (`~/.plunk/store/`) is a mutable cache keyed by `name@version`. Scoped packages encode as `@scope+name@1.0.0`. Each entry has a `package/` directory with the published files and a `.plunk-meta.json` tracking the content hash, timestamp, and source path.
+`plunk publish` reads the library's `package.json`, figures out which files to include (same rules as `npm pack`), and copies them into `~/.plunk/store/<name>@<version>/`. A SHA-256 content hash prevents redundant writes. Files go to a temp directory first, then get renamed into place, so the operation is atomic.
 
-Publishing resolves which files to include (respects the `files` field in `package.json`), computes a deterministic SHA-256 content hash, and writes to the store atomically. If the hash matches, nothing happens.
+`plunk add` copies from the store into the consumer's `node_modules/`. It backs up whatever npm/pnpm originally installed so you can roll back later. For pnpm, it follows the symlink chain into `.pnpm/` to write files at the real location rather than clobbering the symlink.
 
-Injection is where things get interesting. For npm, yarn, and bun, it's a direct copy into `node_modules/`. For pnpm, plunk has to follow the symlink chain into the `.pnpm/` virtual store so the real files end up in the right place.
+`plunk dev` combines both steps and adds a file watcher. Change a file, it rebuilds, publishes, and pushes to every registered consumer.
 
-## Technical deep-dives
+## Dealing with pnpm
 
-These are the parts I found most interesting to build.
+This was the part that made yalc give up. pnpm doesn't store packages directly in `node_modules/`:
 
-### Copy-on-Write reflinks
+```
+node_modules/
+├── my-lib → .pnpm/my-lib@1.0.0/node_modules/my-lib  (symlink)
+└── .pnpm/
+    └── my-lib@1.0.0/
+        └── node_modules/
+            └── my-lib/   ← actual files live here
+```
 
-On filesystems that support it (APFS on macOS, btrfs on Linux, ReFS on Windows), copying a file can be nearly free. A "reflink" tells the filesystem to share the underlying data blocks. The file looks like a normal copy but takes zero extra disk space until one side is modified.
+Writing to `node_modules/my-lib` would overwrite the symlink itself. plunk resolves through the chain and writes to the real directory inside `.pnpm/`:
 
-plunk probes once per filesystem volume and caches the result:
+```typescript
+async function resolveTargetDir(
+  consumerPath: string,
+  packageName: string,
+  pm: PackageManager
+): Promise<string> {
+  const directPath = getNodeModulesPackagePath(consumerPath, packageName);
+
+  if (pm === "pnpm") {
+    try {
+      const realPath = await resolveRealPath(directPath);
+      if (realPath !== resolve(directPath)) {
+        return realPath;
+      }
+    } catch {
+      const pnpmDir = join(consumerPath, "node_modules", ".pnpm");
+      const entries = await readdir(pnpmDir);
+      const encodedName = packageName.replace("/", "+");
+      for (const entry of entries) {
+        if (entry.startsWith(encodedName + "@")) {
+          const candidate = join(pnpmDir, entry, "node_modules", packageName);
+          if (await exists(candidate)) return candidate;
+        }
+      }
+    }
+  }
+
+  return directPath;
+}
+```
+
+The fallback scan handles the edge case where the `.pnpm/` directory exists from a previous install but the top-level symlink is gone. This is the kind of thing you can't fix in yalc without an active maintainer. The pnpm internals keep evolving.
+
+## Copy-on-write reflinks
+
+On APFS (macOS), btrfs (Linux), and ReFS (Windows), plunk uses reflinks. The filesystem shares the underlying data blocks, so the copy is nearly instant and takes zero extra disk space until one side is modified.
 
 ```typescript
 const reflinkSupported = new Map<string, boolean>();
@@ -138,7 +180,7 @@ export async function copyWithCoW(src: string, dest: string): Promise<void> {
     return;
   }
 
-  // First copy on this volume: probe with FICLONE_FORCE
+  // First copy on this volume: probe
   try {
     await copyFile(src, dest, constants.COPYFILE_FICLONE_FORCE);
     reflinkSupported.set(root, true);
@@ -149,176 +191,21 @@ export async function copyWithCoW(src: string, dest: string): Promise<void> {
 }
 ```
 
-`COPYFILE_FICLONE_FORCE` fails immediately if the filesystem doesn't support reflinks. No wasted syscalls, no feature-detection files. The per-volume map means plunk handles mixed filesystem setups (external drives, containers with different mount points) without re-probing.
+It probes once per filesystem volume and caches the result. Mixed setups (external drives, containers with different mounts) work without re-probing.
 
-### Incremental copy with xxhash
+## Incremental sync
 
-Every injection compares source and destination files. Size comparison first (fast rejection for most changes), then xxhash64 for files under 1MB, streaming SHA-256 for larger files.
+yalc copies everything on every push. plunk diffs first.
 
-```typescript
-const WORKER_THRESHOLD = 64 * 1024;    // ≤64KB: main thread
-const STREAM_THRESHOLD = 1024 * 1024;  // >1MB: streaming SHA-256
+It starts with file sizes. Different size means the file changed, copy it, move on. If the sizes match, it checks the modification time. plunk preserves source timestamps after each copy, so if the mtime hasn't changed, the file is almost certainly the same and gets skipped without hashing. The hash (xxHash64, about 5-10x faster than SHA-256) is only computed when the size matches but the mtime differs.
 
-export async function hashFile(filePath: string, knownSize?: number): Promise<string> {
-  const size = knownSize ?? (await stat(filePath)).size;
+Files removed from the source get cleaned up from the destination. All comparisons run in parallel, throttled to the number of CPU cores.
 
-  if (size <= WORKER_THRESHOLD) {
-    return hashFileMainThread(filePath, size);
-  }
+## Watch mode
 
-  // Larger files: offload to worker pool
-  const p = await getPool();
-  if (p) {
-    try {
-      return await p.run([filePath, size]);
-    } catch { /* fallback */ }
-  }
-
-  return hashFileMainThread(filePath, size);
-}
-```
-
-The worker pool is backed by tinypool, sized to `Math.min(availableParallelism(), 8)` threads. It lazy-initializes. If the pool fails to start (restricted environments, missing worker file), plunk falls back to main-thread hashing without any user-visible error. Small files stay on the main thread because the overhead of posting to a worker exceeds the hash computation time.
-
-### Atomic store writes
-
-Publishing to the store follows a temp-then-rename pattern with proper file locking:
+The file watcher follows what I call "debounce effects, not detection." Changes are picked up immediately, but the expensive part (build + push) is coalesced:
 
 ```typescript
-const result = await withFileLock(
-  storeEntryDir + ".lock",
-  async () => {
-    // Re-check under lock (another process may have published)
-    const metaUnderLock = await readMeta(pkg.name, pkg.version);
-    if (metaUnderLock?.contentHash === contentHash) return { skipped: true };
-
-    const tmpDir = storeEntryDir + ".tmp-" + Date.now();
-
-    try {
-      // Copy all files in parallel with CoW
-      await Promise.all(
-        files.map(file => copyLimit(async () => {
-          await copyWithCoW(file, join(tmpDir, "package", relative(packageDir, file)));
-        }))
-      );
-
-      // Write metadata
-      await writeFile(join(tmpDir, ".plunk-meta.json"), JSON.stringify(meta));
-
-      // Atomic swap
-      await removeDir(storeEntryDir);
-      await rename(tmpDir, storeEntryDir);
-
-      return { skipped: false };
-    } catch (err) {
-      await removeDir(tmpDir);
-      throw err;
-    }
-  },
-  { stale: 60000 }
-);
-```
-
-The double-check under the lock handles the race where two `plunk dev` instances detect the same change simultaneously. The first one wins, the second finds a matching hash and skips. Lock staleness at 60 seconds prevents deadlocks if a process crashes mid-publish.
-
-The `workspace:*` and `catalog:*` protocol rewriting happens during publish too. Monorepo-specific version protocols get resolved to real versions in the store copy, but the source `package.json` is never modified. This matters because yalc's approach of rewriting the consumer's `package.json` is the exact kind of git contamination plunk avoids.
-
-### pnpm virtual store injection
-
-This was the trickiest part. pnpm doesn't store packages directly in `node_modules/`. Instead:
-
-```
-node_modules/
-├── my-lib → .pnpm/my-lib@1.0.0/node_modules/my-lib  (symlink)
-└── .pnpm/
-    └── my-lib@1.0.0/
-        └── node_modules/
-            └── my-lib/   ← actual files live here
-```
-
-Writing to `node_modules/my-lib` would overwrite the symlink. plunk needs to follow the chain and write to the real location inside `.pnpm/`:
-
-```typescript
-async function resolveTargetDir(
-  consumerPath: string,
-  packageName: string,
-  pm: PackageManager
-): Promise<string> {
-  const directPath = getNodeModulesPackagePath(consumerPath, packageName);
-
-  if (pm === "pnpm") {
-    try {
-      const realPath = await resolveRealPath(directPath);
-      if (realPath !== resolve(directPath)) {
-        return realPath;  // Follow symlink to .pnpm/ location
-      }
-    } catch {
-      // Symlink doesn't exist yet — scan .pnpm/ directly
-      const pnpmDir = join(consumerPath, "node_modules", ".pnpm");
-      const entries = await readdir(pnpmDir);
-      const encodedName = packageName.replace("/", "+");
-      for (const entry of entries) {
-        if (entry.startsWith(encodedName + "@")) {
-          const candidate = join(pnpmDir, entry, "node_modules", packageName);
-          if (await exists(candidate)) return candidate;
-        }
-      }
-    }
-  }
-
-  return directPath;
-}
-```
-
-The fallback scan handles the case where `pnpm install` hasn't run yet but the `.pnpm/` directory already exists from a previous install. Yarn with `nodeLinker: pnpm` follows the same path.
-
-### Vite plugin
-
-The Vite integration watches `.plunk/state.json` (updated on every push) and triggers a full page reload:
-
-```typescript
-export default function plunkPlugin(): Plugin {
-  let plunkStateFile: string;
-  let cacheDir: string;
-
-  return {
-    name: "vite-plugin-plunk",
-    apply: "serve",
-
-    configResolved(config) {
-      plunkStateFile = normalize(join(config.root, ".plunk", "state.json"));
-      cacheDir = config.cacheDir;
-    },
-
-    configureServer(server) {
-      server.watcher.add(plunkStateFile);
-
-      server.watcher.on("change", async (changedPath: string) => {
-        if (normalize(changedPath) !== plunkStateFile) return;
-
-        try {
-          await rm(cacheDir, { recursive: true, force: true });
-        } catch { /* cache dir may be locked */ }
-
-        server.ws.send({ type: "full-reload", path: "*" });
-      });
-    },
-  };
-}
-```
-
-Why `full-reload` over WebSocket instead of `server.restart()`? Because `server.restart()` re-bundles `vite.config.ts`, which can fail with CJS/ESM interop errors (brace-expansion, for instance). A full-reload makes the browser refetch everything; Vite discovers missing pre-bundled dependencies automatically and re-optimizes them. The entire `.vite/` cache dir gets cleared first so stale pre-bundled deps don't survive.
-
-### Watch mode coalescing
-
-The watcher follows a "debounce effects, not detection" pattern. File changes are detected immediately, but the push (the expensive part) is coalesced:
-
-```typescript
-const debounceMs = options.debounce ?? 100;
-let coalesceTimer: ReturnType<typeof setTimeout> | null = null;
-let running = false;
-let pendingWhileRunning = false;
-
 const scheduleFlush = () => {
   if (coalesceTimer) return;
 
@@ -348,24 +235,55 @@ const scheduleFlush = () => {
 };
 ```
 
-A 100ms window collapses rapid filesystem events into a single push. If new changes arrive while a push is already running, they're queued. Never dropped. The build command runs first; if it fails, the push is skipped (no point injecting stale output).
+Rapid filesystem events collapse into a single push. If changes arrive while a push is in-flight, they queue up and trigger another round when the current one finishes. If the build fails, the push is skipped. No point injecting stale output.
 
-## DX: zero manual steps
+## Vite integration
 
-What I actually care about is that the workflow has no ceremony.
+plunk has a Vite plugin that watches `.plunk/state.json` (updated on every push) and triggers a full page reload:
 
-`plunk add my-lib --from ../my-lib` publishes the library and injects it in one command. It figures out the package manager, backs up what's already installed, checks for missing transitive deps. If the consumer uses Vite, it writes the plunk plugin into `vite.config.ts` for you.
+```typescript
+export default function plunkPlugin(): Plugin {
+  return {
+    name: "vite-plugin-plunk",
+    apply: "serve",
 
-`plunk dev` detects the build command from `package.json` scripts, watches for changes, rebuilds, pushes to all registered consumers. No config file. No daemon.
+    configResolved(config) {
+      plunkStateFile = normalize(join(config.root, ".plunk", "state.json"));
+      cacheDir = config.cacheDir;
+    },
 
-`plunk restore` puts back the original packages. It hooks into `postinstall`, so running `npm install` restores everything automatically. Teammates who don't use plunk never notice.
+    configureServer(server) {
+      server.watcher.add(plunkStateFile);
+      server.watcher.on("change", async (changedPath: string) => {
+        if (normalize(changedPath) !== plunkStateFile) return;
+        try {
+          await rm(cacheDir, { recursive: true, force: true });
+        } catch {}
+        server.ws.send({ type: "full-reload", path: "*" });
+      });
+    },
+  };
+}
+```
 
-## It's v0.1.0
+It sends `full-reload` over WebSocket rather than calling `server.restart()`. Restart re-bundles `vite.config.ts`, which can fail with CJS/ESM interop issues. A full-reload just makes the browser refetch everything, and Vite re-optimizes dependencies on its own. plunk also clears Next.js and Webpack caches after injection.
 
-plunk works for my daily workflow: the shared UI kit across three consumer apps. It handles pnpm, npm, yarn (node-linker), and bun. The Vite plugin does its job.
+## The daily workflow
 
-What's not there yet: Next.js `transpilePackages` auto-detection needs more testing. Webpack plugin doesn't exist. The test suite covers the core paths but edge cases around concurrent multi-consumer pushes could use more coverage. The `catalog:` protocol rewriting is new and has seen limited real-world use.
+The whole point is that there's no ceremony.
 
-If you're fighting the same symlink problems and want to try a different approach, [plunk is on GitHub](https://github.com/oleg-kuibar/plunk). Issues and PRs are welcome.
+`plunk add my-lib --from ../my-lib` publishes the library and injects it in one command. It detects the package manager, backs up what's installed, checks for missing transitive deps.
 
-Want to see the publish → store → inject flow in action? [Try the interactive playground](https://plunk.olegkuibar.dev).
+`plunk dev` figures out the build command from `package.json`, watches for changes, rebuilds, pushes to all consumers. No config file.
+
+`plunk restore` hooks into `postinstall`. Run `pnpm install` and all linked packages get re-injected automatically. Teammates who don't use plunk never see anything different.
+
+`plunk migrate` converts an existing yalc setup. It removes `.yalc/`, undoes the `package.json` rewrites, and sets up plunk state.
+
+## Links
+
+[GitHub](https://github.com/oleg-kuibar/plunk) / [npm](https://www.npmjs.com/package/@olegkuibar/plunk) / [browser playground](https://plunk.olegkuibar.dev)
+
+```bash
+npx @olegkuibar/plunk init
+```
