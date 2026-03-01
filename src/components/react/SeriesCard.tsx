@@ -27,7 +27,7 @@ export function SeriesCard({
   posts,
 }: SeriesCardProps) {
   return (
-    <Card className="h-full border-2 border-border shadow-[3px_3px_0_0_rgba(0,0,0,0.15)] dark:shadow-[3px_3px_0_0_rgba(255,255,255,0.1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-transform">
+    <Card className="h-full border-2 border-border shadow-retro hover:bg-[oklch(0.96_0.06_96)] dark:hover:bg-[oklch(0.17_0.03_85)] transition-colors">
       <a href={`/blog/series/${slug}`} className="block">
         <CardContent className="p-5">
           <div className="flex items-center gap-2 mb-3">

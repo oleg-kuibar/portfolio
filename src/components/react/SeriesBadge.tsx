@@ -29,7 +29,7 @@ export function SeriesBadge({
         size="sm"
         variant="soft"
         color="accent"
-        className="cursor-pointer hover:opacity-80 transition-opacity"
+        className="cursor-pointer hover:bg-accent/15 transition-colors"
       >
         <BookOpen className="h-3 w-3 mr-1 inline" />
         Part {partNumber} of {totalParts}

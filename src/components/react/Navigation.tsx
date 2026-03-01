@@ -42,7 +42,7 @@ export function Navigation({ navItems, currentPath }: NavigationProps) {
                 href={item.href}
                 className={cn(
                   'block w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors',
-                  'hover:bg-muted focus:bg-muted focus:outline-none',
+                  'hover:bg-accent/10 focus:bg-accent/10 focus:outline-none',
                   currentPath === item.href ||
                     (item.href !== '/' && currentPath.startsWith(item.href))
                     ? 'text-primary'

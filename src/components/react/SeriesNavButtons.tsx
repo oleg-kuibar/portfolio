@@ -19,7 +19,7 @@ export function SeriesNavButtons({ prevPost, nextPost }: SeriesNavButtonsProps) 
       {prevPost && (
         <a
           href={`/blog/${prevPost.slug}`}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md border-2 border-border bg-background hover:bg-muted transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md border-2 border-secondary/40 bg-background hover:bg-secondary/10 transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
           Previous: Part {prevPost.partNumber}

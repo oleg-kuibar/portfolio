@@ -19,7 +19,7 @@ export function SeriesHeader({
   firstPostSlug,
 }: SeriesHeaderProps) {
   return (
-    <Card className="mb-12 border-2 border-border shadow-[3px_3px_0_0_rgba(0,0,0,0.15)] dark:shadow-[3px_3px_0_0_rgba(255,255,255,0.1)]">
+    <Card className="mb-12 border-2 border-border shadow-retro">
       <CardContent className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Chip variant="soft" color="accent">

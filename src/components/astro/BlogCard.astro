@@ -24,8 +24,8 @@ const { title, description, date, slug, category, tags, featured = false, readin
 ---
 
 <article class:list={[
-  'retro-card group transition-all hover:translate-x-[-2px] hover:translate-y-[-2px]',
-  featured && 'border-primary/50',
+  'retro-card group transition-colors',
+  featured && 'border-accent/50',
 ]}>
   <a href={`/blog/${slug}`} class="block">
     <div class="flex flex-wrap items-center gap-2 mb-3">

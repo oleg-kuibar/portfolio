@@ -141,7 +141,7 @@ export function SearchDialog({ posts }: SearchDialogProps) {
                         onClick={() => handleSelect(post.slug)}
                         className={cn(
                           'w-full rounded-md px-4 py-3 text-left transition-colors',
-                          'hover:bg-muted focus:bg-muted focus:outline-none'
+                          'hover:bg-accent/10 focus:bg-accent/10 focus:outline-none'
                         )}
                       >
                         <div className="font-medium text-foreground">
@@ -151,7 +151,7 @@ export function SearchDialog({ posts }: SearchDialogProps) {
                           {post.description}
                         </div>
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs text-primary">
+                          <span className="text-xs text-secondary">
                             {post.category}
                           </span>
                           {post.tags.slice(0, 2).map((tag) => (

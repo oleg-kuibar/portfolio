@@ -10,9 +10,9 @@ interface RetroButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const RetroButton = forwardRef<HTMLButtonElement, RetroButtonProps>(
   ({ className, variant = 'default', size = 'md', children, ...props }, ref) => {
     const variants = {
-      default: 'bg-background text-foreground hover:bg-muted',
+      default: 'bg-background text-foreground hover:bg-accent/15',
       primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      outline: 'bg-transparent border-foreground text-foreground hover:bg-muted',
+      outline: 'bg-transparent border-foreground text-foreground hover:bg-accent/15',
     };
 
     const sizes = {

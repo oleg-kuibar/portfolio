@@ -74,7 +74,7 @@ export function SeriesNav({
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="fixed bottom-6 right-6 z-40 hidden lg:block"
         >
-          <Card className="max-w-xs bg-background/95 backdrop-blur-sm border-2 border-border shadow-[3px_3px_0_0_rgba(0,0,0,0.15)] dark:shadow-[3px_3px_0_0_rgba(255,255,255,0.1)]">
+          <Card className="max-w-xs bg-background/95 backdrop-blur-sm border-2 border-border shadow-retro">
             <CardContent className="p-4">
               {/* Header with dismiss */}
               <div className="flex items-start justify-between gap-2 mb-3">
@@ -156,7 +156,7 @@ export function SeriesNav({
                               key={post.slug}
                               href={`/blog/${post.slug}`}
                               className={cn(
-                                'flex items-start gap-2 rounded-md px-3 py-2 transition-colors hover:bg-muted',
+                                'flex items-start gap-2 rounded-md px-3 py-2 transition-colors hover:bg-accent/10',
                                 isCurrent && 'bg-primary/10 text-primary'
                               )}
                             >

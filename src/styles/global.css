@@ -16,30 +16,32 @@
 
   /* Retro color palette using OKLCH */
   /* Light mode base colors */
-  --color-background: oklch(0.97 0.01 85);
+  --color-background: oklch(0.97 0.015 65);
   --color-foreground: oklch(0.18 0.02 45);
 
-  /* Primary - Retro teal */
-  --color-primary: oklch(0.55 0.14 195);
-  --color-primary-foreground: oklch(0.97 0.01 85);
+  /* Primary - Ukrainian Blue (aged indigo) */
+  --color-primary: oklch(0.45 0.14 255);
+  --color-primary-foreground: oklch(0.97 0.015 65);
 
-  /* Secondary - Terracotta */
-  --color-secondary: oklch(0.60 0.15 45);
-  --color-secondary-foreground: oklch(0.97 0.01 85);
+  /* Secondary - Ukrainian Gold */
+  --color-secondary: oklch(0.91 0.18 96.33);
+  --color-secondary-foreground: oklch(0.22 0.02 45);
 
-  /* Accent - Mustard gold */
-  --color-accent: oklch(0.75 0.15 85);
-  --color-accent-foreground: oklch(0.18 0.02 45);
+  /* Accent - Warm Wheat */
+  --color-accent: oklch(0.52 0.12 70);
+  --color-accent-foreground: oklch(0.97 0.015 65);
 
   /* Muted */
-  --color-muted: oklch(0.92 0.01 85);
-  --color-muted-foreground: oklch(0.45 0.02 45);
+  --color-muted: oklch(0.93 0.013 70);
+  --color-muted-foreground: oklch(0.45 0.02 50);
 
-  /* Border and ring */
-  --color-border: oklch(0.85 0.02 85);
-  --color-ring: oklch(0.55 0.14 195);
+  /* Border and ring (warm-tinted to tie into palette) */
+  --color-border: oklch(0.85 0.03 65);
+  --color-ring: oklch(0.45 0.14 255);
 
   /* Retro shadows */
+  --shadow-retro-xs: 1px 1px 0 0 oklch(0.18 0.02 45 / 0.08);
+  --shadow-retro-sm: 2px 2px 0 0 oklch(0.18 0.02 45 / 0.10);
   --shadow-retro: 3px 3px 0 0 oklch(0.18 0.02 45 / 0.15);
   --shadow-retro-lg: 5px 5px 0 0 oklch(0.18 0.02 45 / 0.15);
 
@@ -60,24 +62,26 @@
 
 /* Dark mode theme overrides */
 .dark {
-  --color-background: oklch(0.15 0.02 45);
+  --color-background: oklch(0.15 0.02 55);
   --color-foreground: oklch(0.92 0.02 85);
 
-  --color-primary: oklch(0.70 0.14 195);
-  --color-primary-foreground: oklch(0.15 0.02 45);
+  --color-primary: oklch(0.80 0.16 96.31);
+  --color-primary-foreground: oklch(0.15 0.02 55);
 
-  --color-secondary: oklch(0.65 0.14 45);
-  --color-secondary-foreground: oklch(0.15 0.02 45);
+  --color-secondary: oklch(0.46 0.14 254.93);
+  --color-secondary-foreground: oklch(0.92 0.02 85);
 
-  --color-accent: oklch(0.75 0.15 85);
-  --color-accent-foreground: oklch(0.15 0.02 45);
+  --color-accent: oklch(0.68 0.10 60);
+  --color-accent-foreground: oklch(0.15 0.02 55);
 
-  --color-muted: oklch(0.20 0.01 45);
+  --color-muted: oklch(0.20 0.015 55);
   --color-muted-foreground: oklch(0.70 0.01 85);
 
-  --color-border: oklch(0.30 0.02 45);
-  --color-ring: oklch(0.70 0.14 195);
+  --color-border: oklch(0.28 0.035 50);
+  --color-ring: oklch(0.80 0.16 96.31);
 
+  --shadow-retro-xs: 1px 1px 0 0 oklch(0.92 0.02 85 / 0.05);
+  --shadow-retro-sm: 2px 2px 0 0 oklch(0.92 0.02 85 / 0.08);
   --shadow-retro: 3px 3px 0 0 oklch(0.92 0.02 85 / 0.15);
   --shadow-retro-lg: 5px 5px 0 0 oklch(0.92 0.02 85 / 0.15);
 }
@@ -110,13 +114,13 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
     z-index: 9999;
   }
 
   .dark body::before {
-    opacity: 0.02;
+    opacity: 0.01;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -138,10 +142,19 @@
     border-radius: 0.5rem;
     padding: 1.5rem;
     box-shadow: var(--shadow-retro);
+    transition: background-color 0.2s ease;
+  }
+
+  .retro-card:hover {
+    background-color: oklch(0.96 0.06 96);
   }
 
   .dark .retro-card {
     border-color: oklch(0.92 0.02 85 / 0.2);
+  }
+
+  .dark .retro-card:hover {
+    background-color: oklch(0.17 0.03 85);
   }
 
   .retro-button {
@@ -158,17 +171,11 @@
   }
 
   .retro-button:hover {
-    box-shadow: 1px 1px 0 0 oklch(0.18 0.02 45 / 0.15);
-    transform: translate(2px, 2px);
-  }
-
-  .dark .retro-button:hover {
-    box-shadow: 1px 1px 0 0 oklch(0.92 0.02 85 / 0.15);
+    background-color: oklch(0.91 0.18 96 / 0.12);
   }
 
   .retro-button:active {
-    box-shadow: 0 0 0 0 transparent;
-    transform: translate(3px, 3px);
+    transform: translate(1px, 1px);
   }
 
   /* Blog typography styles */
@@ -218,11 +225,22 @@
     color: var(--color-primary);
     text-decoration: underline;
     text-underline-offset: 2px;
-    transition: opacity 0.15s ease;
+    transition: background-size 0.3s ease;
+    background-image: linear-gradient(oklch(0.91 0.18 96 / 0.25), oklch(0.91 0.18 96 / 0.25));
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    padding: 0.05em 0.15em;
+    margin: -0.05em -0.15em;
+    border-radius: 2px;
+  }
+
+  .dark .prose a {
+    background-image: linear-gradient(oklch(0.80 0.16 96 / 0.20), oklch(0.80 0.16 96 / 0.20));
   }
 
   .prose a:hover {
-    opacity: 0.8;
+    background-size: 100% 100%;
   }
 
   .prose strong {
@@ -257,7 +275,7 @@
   }
 
   .prose blockquote {
-    border-left: 4px solid var(--color-primary);
+    border-left: 4px solid var(--color-secondary);
     padding-left: 1rem;
     font-style: italic;
     margin-top: 1.5rem;
@@ -281,7 +299,7 @@
   }
 
   .dark .prose pre {
-    background-color: oklch(0.12 0.01 45);
+    background-color: oklch(0.12 0.01 55);
     border-color: oklch(0.92 0.02 85 / 0.12);
   }
 
@@ -336,17 +354,17 @@
   }
 
   .dark .prose th {
-    background-color: oklch(0.20 0.01 45);
+    background-color: oklch(0.20 0.015 55);
   }
 }
 
 /* Selection color */
 ::selection {
-  background-color: oklch(0.55 0.14 195 / 0.3);
+  background-color: oklch(0.45 0.14 255 / 0.3);
 }
 
 .dark ::selection {
-  background-color: oklch(0.70 0.14 195 / 0.3);
+  background-color: oklch(0.80 0.16 96 / 0.3);
 }
 
 /* Flip card effect */
@@ -382,11 +400,11 @@
 
 /* Retro image filter */
 .retro-img {
-  filter: sepia(0.15) saturate(0.9) contrast(1.05) brightness(1.02);
+  filter: sepia(0.08) saturate(0.95) contrast(1.02) brightness(1.01);
 }
 
 .dark .retro-img {
-  filter: sepia(0.25) saturate(0.85) contrast(1.1) brightness(0.9);
+  filter: sepia(0.12) saturate(0.9) contrast(1.05) brightness(0.92);
 }
 
 /* Mermaid diagram styles */
@@ -399,7 +417,7 @@
 }
 
 .dark .mermaid-container {
-  background-color: oklch(0.12 0.01 45);
+  background-color: oklch(0.12 0.01 55);
   border-color: oklch(0.92 0.02 85 / 0.12);
 }
 
