@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +17,18 @@ interface SearchDialogProps {
 export function SearchDialog({ posts }: SearchDialogProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const restoreRef = useRef<(() => void) | null>(null);
+
+  const closeSearch = useCallback(() => {
+    if (!restoreRef.current) return;
+    restoreRef.current();
+    setQuery('');
+    setOpen(false);
+    triggerRef.current?.focus();
+  }, []);
 
   const filteredPosts = useMemo(() => {
     if (!query.trim()) return [];
@@ -38,37 +50,31 @@ export function SearchDialog({ posts }: SearchDialogProps) {
   }, [posts, query]);
 
   const handleSelect = (slug: string) => {
-    setOpen(false);
-    setQuery('');
+    closeSearch();
     window.location.href = `/blog/${slug}`;
   };
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape' && open) {
-      setOpen(false);
-      setQuery('');
-    }
-  }, [open]);
-
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
-
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
+    if (!open || !dialogRef.current) return;
+    const dialog = dialogRef.current;
+    const originalOverflow = document.body.style.overflow;
+    const restore = () => {
+      if (restoreRef.current !== restore) return;
+      restoreRef.current = null;
+      dialog.close();
+      document.body.style.overflow = originalOverflow;
     };
+    restoreRef.current = restore;
+    document.body.style.overflow = 'hidden';
+    dialog.showModal();
+    inputRef.current?.focus();
+    return restore;
   }, [open]);
 
   return (
     <>
       <button
+        ref={triggerRef}
         onClick={() => setOpen(true)}
         className="retro-button bg-background flex items-center gap-2"
       >
@@ -78,22 +84,29 @@ export function SearchDialog({ posts }: SearchDialogProps) {
       </button>
 
       {open && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-50 bg-foreground/20 backdrop-blur-sm"
-            onClick={() => {
-              setOpen(false);
-              setQuery('');
+          <dialog
+            ref={dialogRef}
+            aria-label="Search posts"
+            className="fixed left-1/2 top-1/4 z-50 m-0 w-full max-w-lg -translate-x-1/2 rounded-lg border-2 border-border bg-background p-0 shadow-retro-lg backdrop:bg-foreground/20 backdrop:backdrop-blur-(--blur-sm)"
+            onCancel={(event) => {
+              event.preventDefault();
+              closeSearch();
             }}
-          />
-
-          {/* Dialog */}
-          <div className="fixed left-1/2 top-1/4 z-50 w-full max-w-lg -translate-x-1/2 rounded-lg border-2 border-border bg-background p-0 shadow-retro-lg">
+            onClick={(event) => {
+              if (event.target !== event.currentTarget) return;
+              const bounds = event.currentTarget.getBoundingClientRect();
+              if (event.clientX < bounds.left || event.clientX > bounds.right ||
+                  event.clientY < bounds.top || event.clientY > bounds.bottom) {
+                closeSearch();
+              }
+            }}
+          >
             {/* Search input */}
             <div className="flex items-center border-b-2 border-border px-4">
               <Search className="h-5 w-5 text-muted-foreground" />
               <input
+                ref={inputRef}
+                aria-label="Search posts"
                 type="text"
                 placeholder="Search posts..."
                 value={query}
@@ -102,10 +115,8 @@ export function SearchDialog({ posts }: SearchDialogProps) {
                 autoFocus
               />
               <button
-                onClick={() => {
-                  setOpen(false);
-                  setQuery('');
-                }}
+                aria-label="Close search"
+                onClick={closeSearch}
                 className="p-2 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-5 w-5" />
@@ -181,8 +192,7 @@ export function SearchDialog({ posts }: SearchDialogProps) {
                 </span>
               </div>
             </div>
-          </div>
-        </>
+          </dialog>
       )}
     </>
   );
